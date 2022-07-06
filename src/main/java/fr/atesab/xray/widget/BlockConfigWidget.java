@@ -4,13 +4,13 @@ import java.util.List;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import fr.atesab.xray.screen.XrayBlockMenu;
 import fr.atesab.xray.config.BlockConfig;
+import fr.atesab.xray.screen.XrayBlockMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
@@ -25,7 +25,7 @@ public class BlockConfigWidget extends Button {
 
     public BlockConfigWidget(int x, int y, int width, int height, BlockConfig cfg, Screen menu, int deltaX,
             int deltaY) {
-        super(x, y, width, height, new TextComponent(""),
+        super(x, y, width, height, Component.literal(""),
                 b -> Minecraft.getInstance().setScreen(new XrayBlockMenu(menu, cfg)));
         this.cfg = cfg;
         this.deltaX = deltaX;

@@ -5,6 +5,7 @@ import java.text.NumberFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.phys.BlockHitResult;
@@ -55,4 +56,9 @@ public class LocationUtils {
 		return String.valueOf(WorldgenRandom.seedSlimeChunk(chunk.x, chunk.z, 
 				mc.getSingleplayerServer().getWorldData().worldGenSettings().seed(), 987234911L).nextInt(10) == 0);
 	}
+	
+	public static String getNameInHolder(Holder<?> biomeHolder) {
+		return biomeHolder.unwrapKey().get().location().getPath();
+	}
+
 }

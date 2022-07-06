@@ -15,8 +15,6 @@ import fr.atesab.xray.utils.TagOnWriteList;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public abstract class PagedScreen<E> extends XrayScreen {
     @FunctionalInterface
@@ -47,8 +45,8 @@ public abstract class PagedScreen<E> extends XrayScreen {
         elements.setTagEnabled(false);
         initElements(stream);
         elements.setTagEnabled(true);
-        lastButton = new Button(0, 0, 20, 20, new TextComponent("<-"), b -> lastPage());
-        nextButton = new Button(0, 0, 20, 20, new TextComponent("->"), b -> nextPage());
+        lastButton = new Button(0, 0, 20, 20, Component.literal("<-"), b -> lastPage());
+        nextButton = new Button(0, 0, 20, 20, Component.literal("->"), b -> nextPage());
     }
 
     protected void removeDoneButton() {
@@ -152,7 +150,7 @@ public abstract class PagedScreen<E> extends XrayScreen {
         addRenderableWidget(lastButton);
         if (doneButton)
             addRenderableWidget(
-                    new Button(width / 2 - 176, height - 24, 172, 20, new TranslatableComponent("gui.done"), b -> {
+                    new Button(width / 2 - 176, height - 24, 172, 20, Component.translatable("gui.done"), b -> {
                         save(getElements().stream().map(PagedElement::save).filter(Objects::nonNull)
                                 .collect(Collectors.toCollection(() -> new ArrayList<>())));
                         minecraft.setScreen(parent);
@@ -160,7 +158,7 @@ public abstract class PagedScreen<E> extends XrayScreen {
 
         addRenderableWidget(
                 new Button(width / 2 + (doneButton ? 2 : -(btn / 2 + 1)), height - 24, 172, 20,
-                        new TranslatableComponent("gui.cancel"),
+                		Component.translatable("gui.cancel"),
                         b -> {
                             cancel();
                             minecraft.setScreen(parent);

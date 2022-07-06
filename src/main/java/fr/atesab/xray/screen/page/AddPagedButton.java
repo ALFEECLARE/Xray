@@ -5,10 +5,9 @@ import java.util.function.Supplier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 
 public class AddPagedButton<E> extends Button {
-    private static final Component ADD_COMPONENT = new TextComponent("+").withStyle(ChatFormatting.GREEN);
+    private static final Component ADD_COMPONENT = Component.literal("+").withStyle(ChatFormatting.GREEN);
     private static final Button.OnPress EMPTY_PRESS = btn -> {
     };
 

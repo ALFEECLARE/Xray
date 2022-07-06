@@ -11,7 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 public class EntityConfigWidget extends Button {
@@ -25,7 +25,7 @@ public class EntityConfigWidget extends Button {
 
     public EntityConfigWidget(int x, int y, int width, int height, ESPConfig cfg, Screen menu, int deltaX,
             int deltaY) {
-        super(x, y, width, height, new TextComponent(""),
+        super(x, y, width, height, Component.literal(""),
                 b -> Minecraft.getInstance().setScreen(new XrayEntityMenu(menu, cfg)));
         this.cfg = cfg;
         this.deltaX = deltaX;

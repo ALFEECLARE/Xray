@@ -7,13 +7,12 @@ import fr.atesab.xray.color.EnumElement;
 import fr.atesab.xray.utils.LocationUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biome;
 
 public enum LocationFormatTool implements EnumElement {
     PLAYER_LOCATION_X("x13.mod.location.opt.x", Items.BOOK, "x",
@@ -30,11 +29,11 @@ public enum LocationFormatTool implements EnumElement {
     		(mc, cpinfo) -> String.valueOf(cpinfo.getFloatedZ())),
     PLAYER_NAME("x13.mod.location.opt.name", Items.NAME_TAG, "name", (mc, cpinfo) -> cpinfo.getPlayerName()),
     FPS("x13.mod.location.opt.fps", Items.ITEM_FRAME, "fps", (mc, cpinfo) -> mc.fpsString),
-    @SuppressWarnings("deprecation")
-	BIOME_CATEGORY("x13.mod.location.opt.biomeCategory", Items.STRIPPED_OAK_LOG, "biocate",
-    		(mc, cpinfo) -> Biome.getBiomeCategory(cpinfo.getCurrentBiome()).getName()),
+    //BiomeCategory does'nt exist in Minecraft 1.19
+    //BIOME_CATEGORY("x13.mod.location.opt.biomeCategory", Items.STRIPPED_OAK_LOG, "biocate",
+    //		(mc, cpinfo) -> Biome.getBiomeCategory(cpinfo.getCurrentBiome()).getName()),
     BIOME("x13.mod.location.opt.biome", Items.OAK_LOG, "bio",
-    		(mc, cpinfo) -> cpinfo.getCurrentBiome().value().getRegistryName().getPath()),
+    		(mc, cpinfo) -> cpinfo.getCurrentBiome().unwrapKey().get().location().getPath()),
     PLAYER_CHUNK_X("x13.mod.location.opt.chunkX", Items.BOOK, "cx",
     		(mc, cpinfo) -> String.valueOf(cpinfo.getPlayerChunkX())),
     PLAYER_CHUNK_Z("x13.mod.location.opt.chunkZ", Items.BOOK, "cz",
@@ -45,10 +44,11 @@ public enum LocationFormatTool implements EnumElement {
     		(mc, cpinfo) -> String.valueOf(cpinfo.getBrightness(LightLayer.SKY))),
     LOOKINGBLOCK_LIGHT("x13.mod.location.opt.lookingBlockLight", Items.REDSTONE_TORCH, "lookinglight",
     		(mc, cpinfo) -> String.valueOf(cpinfo.getLookingBrightness(LightLayer.BLOCK))), 
-    LOOKINGBLOCK("x13.mod.location.opt.lookingBlock", Items.DIAMOND_ORE, "lookingblock",
-    		(mc, cpinfo) -> cpinfo.getLookingBlock().getRegistryName().getPath()),
+    @SuppressWarnings("deprecation")
+	LOOKINGBLOCK("x13.mod.location.opt.lookingBlock", Items.DIAMOND_ORE, "lookingblock",
+    		(mc, cpinfo) -> Registry.BLOCK.getKey(cpinfo.getLookingBlock()).getPath()),
     LOOKINGBLOCK_TRANSLATE("x13.mod.location.opt.lookingTranslate", Items.DIAMOND_ORE, "lookingtranslate",
-    		(mc, cpinfo) -> new TranslatableComponent(cpinfo.getLookingBlock().getDescriptionId()).getString()),
+    		(mc, cpinfo) -> Component.translatable(cpinfo.getLookingBlock().getDescriptionId()).getString()),
     FACING("x13.mod.location.opt.facing", Items.COMPASS, "face",
     		(mc, cpinfo) -> cpinfo.getPlayerDirection().getName()),
     DAYS_COUNT("x13.mod.location.opt.daysCount", Items.CLOCK, "d",
@@ -90,7 +90,7 @@ public enum LocationFormatTool implements EnumElement {
         this.regex = "%" + txt;
         this.action = action;
         this.icon = new ItemStack(icon);
-        this.title = new TranslatableComponent(translation);
+        this.title = Component.translatable(translation);
     }
 
     public String getOption() {
