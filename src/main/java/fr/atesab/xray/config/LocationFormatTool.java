@@ -34,6 +34,8 @@ public enum LocationFormatTool implements EnumElement {
     //		(mc, cpinfo) -> Biome.getBiomeCategory(cpinfo.getCurrentBiome()).getName()),
     BIOME("x13.mod.location.opt.biome", Items.OAK_LOG, "bio",
     		(mc, cpinfo) -> cpinfo.getCurrentBiome().unwrapKey().get().location().getPath()),
+    BIOME_TRANSLATE("x13.mod.location.opt.biomeTranslate", Items.STRIPPED_OAK_LOG, "bitranslate",
+    		(mc, cpinfo) -> Component.translatable(Util.makeDescriptionId("biome", cpinfo.getCurrentBiome().unwrapKey().get().location())).getString()),
     PLAYER_CHUNK_X("x13.mod.location.opt.chunkX", Items.BOOK, "cx",
     		(mc, cpinfo) -> String.valueOf(cpinfo.getPlayerChunkX())),
     PLAYER_CHUNK_Z("x13.mod.location.opt.chunkZ", Items.BOOK, "cz",

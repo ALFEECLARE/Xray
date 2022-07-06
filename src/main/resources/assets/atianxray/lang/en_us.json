@@ -50,6 +50,7 @@
   "x13.mod.location.opt.fps": "FPS",
   "x13.mod.location.opt.biome": "Biome",
   "x13.mod.location.opt.biomeCategory": "Biome Category",
+  "x13.mod.location.opt.biomeTranslate": "Biome (Translated)",
   "x13.mod.location.opt.chunkX": "Chunk X",
   "x13.mod.location.opt.chunkZ": "Chunk Z",
   "x13.mod.location.opt.blockLight": "Current Position Brightness",
