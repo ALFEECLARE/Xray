@@ -1,7 +1,10 @@
 package fr.atesab.xray.widget;
 
+import org.joml.Matrix4fStack;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+
 import fr.atesab.xray.utils.GuiUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -41,12 +44,12 @@ public class MenuWidget extends AbstractButton {
 
         Component message = getMessage();
         Font font = client.font;
-        PoseStack modelStack = RenderSystem.getModelViewStack();
+        Matrix4fStack modelStack = RenderSystem.getModelViewStack();
 
         int stackCenterX = getX() + width / 2;
         int stackCenterY = getY() + height * 2 / 5;
 
-        modelStack.pushPose();
+        modelStack.pushMatrix();
         modelStack.translate(stackCenterX, stackCenterY, 0);
         float scaleX = getWidth() * 3 / 4f / 16f;
         float scaleY = getHeight() * 3 / 4f / 16f;
@@ -54,7 +57,7 @@ public class MenuWidget extends AbstractButton {
         RenderSystem.applyModelViewMatrix();
         RenderSystem.assertOnRenderThread();
         GuiUtils.renderItemIdentity(graphics, itemStack, -8, -8);
-        modelStack.popPose();
+        modelStack.popMatrix();
         RenderSystem.applyModelViewMatrix();
 
         PoseStack stack = graphics.pose();

@@ -9,10 +9,10 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public abstract class BlockSelector extends XrayScreen {
     private final List<Block> blocks;
@@ -28,7 +28,7 @@ public abstract class BlockSelector extends XrayScreen {
     public BlockSelector(Screen parent) {
         super(Component.translatable("x13.mod.menu.selector"), parent);
         blocks = new ArrayList<>();
-        ForgeRegistries.BLOCKS.forEach(blocks::add);
+        BuiltInRegistries.BLOCK.forEach(blocks::add);
     }
 
     @Override

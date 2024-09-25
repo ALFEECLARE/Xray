@@ -20,8 +20,17 @@ build
 # other
 eclipse
 run
+runs
+run-data
+
+repo
 
 # Files from Forge MDK
 forge*changelog.txt
 
 logs
+/caches/
+/daemon/
+/native/
+/wrapper/
+/.tmp/

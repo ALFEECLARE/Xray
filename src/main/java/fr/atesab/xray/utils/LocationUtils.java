@@ -4,11 +4,19 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -47,6 +55,10 @@ public class LocationUtils {
 		}
 	}
 	
+	public static float getBlockDestroyProgress(Player player,ClientLevel level,BlockPos blockpos) {
+		return level.getBlockState(blockpos).getDestroyProgress(player, level, blockpos);
+	}
+	
 	public static NumberFormat getTwoDigitNumberFormat() {
 		return localTwoDigitNfFormat.get();
 	}
@@ -63,8 +75,8 @@ public class LocationUtils {
 	public static String getDurabilityOrFoodData(ItemStack item) {
 		if (item.isDamageableItem()) {
 			return String.valueOf(getRemainDurability(item));
-		} else if (item.isEdible()) {
-			return String.valueOf(item.getFoodProperties(null).getNutrition()) + "(" + String.format("%.1f",getAddSaturation(item)) + ")";
+		} else if (item.getItem().components().has(DataComponents.FOOD)) {
+			return String.valueOf(item.getFoodProperties(null).nutrition()) + "(" + String.format("%.1f",getAddSaturation(item)) + ")";
 		} else {
 			return "-";
 		}
@@ -73,9 +85,9 @@ public class LocationUtils {
 	public static String getMaxDurabilityOrAfterFoodData(ItemStack item,int currentNutrition, float currentSaturation) {
 		if (item.isDamageableItem()) {
 			return String.valueOf(item.getMaxDamage());
-		} else if (item.isEdible()) {
-			int afterNutrition = Math.min(currentNutrition + item.getFoodProperties(null).getNutrition(), 20);
-			float afterSaturation = Math.min(currentSaturation + getAddSaturation(item), 20);
+		} else if (item.getItem().components().has(DataComponents.FOOD)) {
+			int afterNutrition = Math.min(currentNutrition + item.getFoodProperties(null).nutrition(), 20);
+			float afterSaturation = Math.min(currentSaturation + item.getFoodProperties(null).saturation(), afterNutrition);
 			return String.valueOf(afterNutrition) + "(" + String.format("%.1f",afterSaturation) + ")";
 		} else {
 			return "-";
@@ -87,6 +99,40 @@ public class LocationUtils {
 	}
 
 	public static float getAddSaturation(ItemStack item) {
-		return item.getFoodProperties(null).getNutrition() * item.getFoodProperties(null).getSaturationModifier() * 2.0F;
+		return item.getFoodProperties(null).saturation();
+	}
+	
+	public static String getCorrectToolText(BlockState blockstate) {
+		TagKey<Block> tier = filterBlockTag(blockstate, BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.NEEDS_IRON_TOOL, BlockTags.NEEDS_STONE_TOOL);
+		TagKey<Block> tool = filterBlockTag(blockstate, BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE, BlockTags.MINEABLE_WITH_SHOVEL, BlockTags.MINEABLE_WITH_HOE, BlockTags.SWORD_EFFICIENT);
+		StringBuilder optionValue = new StringBuilder();
+		optionValue.append(Component.translatable("x13.mod.location.opt.block.requiredTool",Component.translatable("x13.mod.location.opt.block.requiredTool." + convertNameFromBlockTagKey(tool)).getString()).getString());
+		if (tier != null) {
+			optionValue.append(Component.translatable("x13.mod.location.opt.block.requiredTier",Component.translatable("x13.mod.location.opt.block.requiredTier." + convertNameFromBlockTagKey(tier)).getString()).getString());
+		}
+		return optionValue.toString();
+	}
+
+	@SafeVarargs
+	public static TagKey<Block> filterBlockTag(BlockState blockstate, TagKey<Block>... keys) {
+		for (int i = 0;i < keys.length;i++ ) {
+			if (blockstate.is(keys[i]))
+				return keys[i];
+		}
+		return null;
+	}
+	
+	public static String convertNameFromBlockTagKey(TagKey<Block> key) {
+		if (key == null)                                { return null; } else
+		if (key.equals(BlockTags.NEEDS_DIAMOND_TOOL))    { return "diamond"; } else
+		if (key.equals(BlockTags.NEEDS_IRON_TOOL))       { return "iron"; } else
+		if (key.equals(BlockTags.NEEDS_STONE_TOOL))      { return "stone"; } else
+		if (key.equals(BlockTags.MINEABLE_WITH_PICKAXE)) { return "pickaxe"; } else
+		if (key.equals(BlockTags.MINEABLE_WITH_AXE))     { return "axe"; } else
+		if (key.equals(BlockTags.MINEABLE_WITH_SHOVEL))  { return "shovel"; } else
+		if (key.equals(BlockTags.MINEABLE_WITH_HOE))     { return "hoe"; } else
+		if (key.equals(BlockTags.SWORD_EFFICIENT))       { return "sword"; } else {
+			return null;
+		}
 	}
 }

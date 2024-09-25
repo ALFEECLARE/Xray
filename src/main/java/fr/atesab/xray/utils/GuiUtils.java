@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import org.joml.Matrix4f;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -22,7 +24,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
-import org.joml.Matrix4f;
 
 /**
  * Advanced creative tab <a href="https://github.com/ate47/AdvancedCreativeTab/blob/1.18-forge/src/main/java/fr/atesab/act/utils/GuiUtils.java">GuiUtils</a>
@@ -356,20 +357,17 @@ public class GuiUtils {
         int blue = color & 0xFF;
         int alpha = useAlpha ? (color >> 24) : 0xff;
         Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.getBuilder();
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.vertex(x, y + height, 0.0D)
-                .uv(u * scaleX, (v + (float) vHeight) * scaleY).color(red, green, blue, alpha)
-                .endVertex();
-        bufferbuilder.vertex(x + width, y + height, 0.0D)
-                .uv((u + (float) uWidth) * scaleX, (v + (float) vHeight) * scaleY)
-                .color(red, green, blue, alpha).endVertex();
-        bufferbuilder.vertex(x + width, y, 0.0D)
-                .uv((u + (float) uWidth) * scaleX, v * scaleY).color(red, green, blue, alpha)
-                .endVertex();
-        bufferbuilder.vertex(x, y, 0.0D).uv(u * scaleX, v * scaleY)
-                .color(red, green, blue, alpha).endVertex();
-        tesselator.end();
+        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        bufferbuilder.addVertex((float)x, (float)y + height, 0.0f)
+                .setUv(u * scaleX, (v + (float) vHeight) * scaleY).setColor(red, green, blue, alpha);
+        bufferbuilder.addVertex((float)x + width, (float)y + height, 0.0f)
+                .setUv((u + (float) uWidth) * scaleX, (v + (float) vHeight) * scaleY)
+                .setColor(red, green, blue, alpha);
+        bufferbuilder.addVertex((float)x + width, (float)y, 0.0f)
+                .setUv((u + (float) uWidth) * scaleX, v * scaleY).setColor(red, green, blue, alpha);
+        bufferbuilder.addVertex((float)x, (float)y, 0.0f).setUv(u * scaleX, v * scaleY)
+                .setColor(red, green, blue, alpha);
+        BufferUploader.draw(bufferbuilder.build());
     }
 
     /**
@@ -727,24 +725,19 @@ public class GuiUtils {
         float redRightBottom = (float) (rightBottomColor >> 16 & 255) / 255.0F;
         float greenRightBottom = (float) (rightBottomColor >> 8 & 255) / 255.0F;
         float blueRightBottom = (float) (rightBottomColor & 255) / 255.0F;
-        BufferBuilder bufferbuilder = Tesselator.getInstance().getBuilder();
+        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
                 GlStateManager.DestFactor.ZERO);
-        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         Matrix4f mat = graphics.pose().last().pose();
-        bufferbuilder.vertex(mat, right, top, zLevel).color(redRightTop, greenRightTop, blueRightTop, alphaRightTop)
-                .endVertex();
-        bufferbuilder.vertex(mat, left, top, zLevel).color(redLeftTop, greenLeftTop, blueLeftTop, alphaLeftTop)
-                .endVertex();
-        bufferbuilder.vertex(mat, left, bottom, zLevel)
-                .color(redLeftBottom, greenLeftBottom, blueLeftBottom, alphaLeftBottom).endVertex();
-        bufferbuilder.vertex(mat, right, bottom, zLevel)
-                .color(redRightBottom, greenRightBottom, blueRightBottom, alphaRightBottom).endVertex();
-        BufferUploader.draw(bufferbuilder.end());
+        bufferbuilder.addVertex(mat, right, top, zLevel).setColor(redRightTop, greenRightTop, blueRightTop, alphaRightTop);
+        bufferbuilder.addVertex(mat, left, top, zLevel).setColor(redLeftTop, greenLeftTop, blueLeftTop, alphaLeftTop);
+        bufferbuilder.addVertex(mat, left, bottom, zLevel).setColor(redLeftBottom, greenLeftBottom, blueLeftBottom, alphaLeftBottom);
+        bufferbuilder.addVertex(mat, right, bottom, zLevel).setColor(redRightBottom, greenRightBottom, blueRightBottom, alphaRightBottom);
+        BufferUploader.draw(bufferbuilder.build());
         RenderSystem.disableBlend();
     }
 

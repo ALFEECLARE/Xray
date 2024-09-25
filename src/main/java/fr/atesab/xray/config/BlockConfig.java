@@ -2,11 +2,10 @@ package fr.atesab.xray.config;
 
 import java.util.Objects;
 
-import com.google.gson.annotations.Expose;
-
-import net.minecraftforge.registries.ForgeRegistries;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import com.google.gson.annotations.Expose;
 
 import fr.atesab.xray.SideRenderer;
 import fr.atesab.xray.XrayMain;
@@ -15,6 +14,7 @@ import fr.atesab.xray.view.ViewMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -61,14 +61,14 @@ public class BlockConfig extends AbstractModeConfig implements SideRenderer, Clo
 
                 /* Other */
                 Blocks.NETHER_WART, Blocks.SPAWNER, Blocks.LAVA, Blocks.WATER,
-                Blocks.TNT, Blocks.CONDUIT,
+                Blocks.TNT, Blocks.CONDUIT, Blocks.TRIAL_SPAWNER, Blocks.VAULT,
 
                 /* Portals */
                 Blocks.END_PORTAL_FRAME, Blocks.END_PORTAL, Blocks.NETHER_PORTAL,
 
                 /* Interactive */
                 Blocks.BEACON, Blocks.CHEST, Blocks.TRAPPED_CHEST, Blocks.ENDER_CHEST,
-                Blocks.DISPENSER, Blocks.DROPPER,
+                Blocks.DISPENSER, Blocks.DROPPER, Blocks.HOPPER, Blocks.DECORATED_POT,
 
                 /* Useless */
                 Blocks.DRAGON_WALL_HEAD, Blocks.DRAGON_HEAD, Blocks.DRAGON_EGG,
@@ -82,7 +82,7 @@ public class BlockConfig extends AbstractModeConfig implements SideRenderer, Clo
                 0,
                 "Cave",
                 ViewMode.INCLUSIVE,
-                Blocks.DIRT,              Blocks.GRASS,            Blocks.GRAVEL,          Blocks.GRASS_BLOCK,
+                Blocks.DIRT,              Blocks.SHORT_GRASS,      Blocks.GRAVEL,          Blocks.GRASS_BLOCK,
                 Blocks.DIRT_PATH,         Blocks.SAND,             Blocks.SANDSTONE,       Blocks.RED_SAND
             )),
         REDSTONE("x13.mod.template.redstone", new ItemStack(Blocks.REDSTONE_ORE), new BlockConfig(
@@ -105,7 +105,8 @@ public class BlockConfig extends AbstractModeConfig implements SideRenderer, Clo
                 Blocks.IRON_DOOR,                                  Blocks.ACACIA_DOOR,
                 Blocks.BIRCH_DOOR,                                 Blocks.DARK_OAK_DOOR,
                 Blocks.JUNGLE_DOOR,                                Blocks.OAK_DOOR,
-                Blocks.SPRUCE_DOOR,                                Blocks.ACACIA_BUTTON,
+                Blocks.SPRUCE_DOOR,                                Blocks.COPPER_DOOR,
+                Blocks.ACACIA_BUTTON,
                 Blocks.BIRCH_BUTTON,                               Blocks.DARK_OAK_BUTTON,
                 Blocks.JUNGLE_BUTTON,                              Blocks.OAK_BUTTON,
                 Blocks.SPRUCE_BUTTON,                              Blocks.STONE_BUTTON,
@@ -116,14 +117,18 @@ public class BlockConfig extends AbstractModeConfig implements SideRenderer, Clo
                 Blocks.IRON_TRAPDOOR,                              Blocks.ACACIA_TRAPDOOR,
                 Blocks.BIRCH_TRAPDOOR,                             Blocks.DARK_OAK_TRAPDOOR,
                 Blocks.JUNGLE_TRAPDOOR,                            Blocks.OAK_TRAPDOOR,
-                Blocks.SPRUCE_TRAPDOOR,                            Blocks.ACACIA_PRESSURE_PLATE,
+                Blocks.SPRUCE_TRAPDOOR,                            Blocks.COPPER_TRAPDOOR,
+                Blocks.ACACIA_PRESSURE_PLATE,
                 Blocks.BIRCH_PRESSURE_PLATE,                       Blocks.DARK_OAK_PRESSURE_PLATE,
                 Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE,              Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE,
                 Blocks.JUNGLE_PRESSURE_PLATE,                      Blocks.OAK_PRESSURE_PLATE,
                 Blocks.SPRUCE_PRESSURE_PLATE,                      Blocks.STONE_PRESSURE_PLATE,
                 Blocks.RAIL,                                       Blocks.ACTIVATOR_RAIL,
                 Blocks.DETECTOR_RAIL,                              Blocks.POWERED_RAIL,
-                Blocks.ENDER_CHEST,								   Blocks.TARGET
+                Blocks.ENDER_CHEST,								   Blocks.TARGET,
+                Blocks.SCULK_SENSOR,                               Blocks.CALIBRATED_SCULK_SENSOR,                               
+                Blocks.CHISELED_BOOKSHELF,                         Blocks.DECORATED_POT,
+                Blocks.COPPER_BULB,                                Blocks.CRAFTER
             ));
         // @formatter:on
 
@@ -210,7 +215,7 @@ public class BlockConfig extends AbstractModeConfig implements SideRenderer, Clo
         if (!isEnabled())
             return;
 
-        String name = Objects.requireNonNullElse(ForgeRegistries.BLOCKS.getKey(adjacentState.getBlock()), "").toString();
+        String name = Objects.requireNonNullElse(BuiltInRegistries.BLOCK.getKey(adjacentState.getBlock()), "").toString();
         boolean present = blocks.contains(name);
         boolean shouldRender = viewMode.getViewer().shouldRenderSide(present, adjacentState, blockState,
                 blockAccess, pos);

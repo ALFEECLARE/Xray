@@ -17,10 +17,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.fml.ModContainer;
 
 public class XrayMenu extends XrayScreen {
 
-    public XrayMenu(Screen parent) {
+    public XrayMenu(ModContainer conainer, Screen parent) {
         super(Component.translatable("x13.mod.config"), parent);
     }
 

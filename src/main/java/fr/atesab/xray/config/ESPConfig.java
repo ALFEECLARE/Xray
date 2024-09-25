@@ -1,8 +1,14 @@
 package fr.atesab.xray.config;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Supplier;
+
 import com.google.gson.annotations.Expose;
+
 import fr.atesab.xray.color.EntityTypeIcon;
 import fr.atesab.xray.color.EnumElement;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -10,11 +16,6 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.ForgeRegistries;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Supplier;
 
 public class ESPConfig extends AbstractModeConfig implements Cloneable {
     public enum Template implements EnumElement {
@@ -158,7 +159,7 @@ public class ESPConfig extends AbstractModeConfig implements Cloneable {
     public boolean shouldTag(EntityType<?> type) {
         if (!isEnabled())
             return false;
-        ResourceLocation id = ForgeRegistries.ENTITY_TYPES.getKey(type);
+        ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
         if (id == null) {
             return false;
         }
@@ -168,7 +169,7 @@ public class ESPConfig extends AbstractModeConfig implements Cloneable {
     public boolean shouldTag(BlockEntityType<?> type) {
         if (!isEnabled())
             return false;
-        ResourceLocation id = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(type);
+        ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
         if (id == null) {
             return false;
         }

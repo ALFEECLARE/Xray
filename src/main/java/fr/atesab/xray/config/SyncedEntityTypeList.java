@@ -4,10 +4,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import fr.atesab.xray.color.EntityTypeIcon;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class SyncedEntityTypeList extends SyncedRegistryList<EntityType<?>> {
 
@@ -16,15 +15,15 @@ public class SyncedEntityTypeList extends SyncedRegistryList<EntityType<?>> {
     }
 
     public SyncedEntityTypeList() {
-        super(ForgeRegistries.ENTITY_TYPES);
+        super(BuiltInRegistries.ENTITY_TYPE);
     }
 
     public SyncedEntityTypeList(EntityType<?>... objects) {
-        super(objects, ForgeRegistries.ENTITY_TYPES);
+        super(objects, BuiltInRegistries.ENTITY_TYPE);
     }
 
     public SyncedEntityTypeList(List<EntityType<?>> objects) {
-        super(objects, ForgeRegistries.ENTITY_TYPES);
+        super(objects, BuiltInRegistries.ENTITY_TYPE);
     }
 
     public Stream<ItemStack> getIcons() {

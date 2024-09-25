@@ -1,5 +1,7 @@
 package fr.atesab.xray.screen;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
 import java.util.function.IntConsumer;
@@ -11,7 +13,6 @@ import fr.atesab.xray.XrayMain;
 import fr.atesab.xray.utils.GuiUtils;
 import fr.atesab.xray.utils.GuiUtils.HSLResult;
 import fr.atesab.xray.widget.XrayButton;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -20,13 +21,14 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
 
 public class ColorSelector extends XrayScreen {
 
@@ -45,20 +47,19 @@ public class ColorSelector extends XrayScreen {
     private static final int PICKER_S_SIZE_X = 20;
     private static final int PICKER_HL_SIZE_X = 200;
     private static boolean pickerInit = false;
-    private static final ResourceLocation PICKER_S_RESOURCE = new ResourceLocation(XrayMain.MOD_ID, "picker_hl");
-    private static final ResourceLocation PICKER_HL_RESOURCE = new ResourceLocation(XrayMain.MOD_ID, "picker_s");
+    private static final ResourceLocation PICKER_S_RESOURCE = ResourceLocation.tryBuild(XrayMain.MOD_ID, "picker_hl");
+    private static final ResourceLocation PICKER_HL_RESOURCE = ResourceLocation.tryBuild(XrayMain.MOD_ID, "picker_s");
     private static final DynamicTexture PICKER_IMAGE_S = new DynamicTexture(
             new NativeImage(NativeImage.Format.RGBA, PICKER_S_SIZE_X, PICKER_SIZE_Y, false));
     private static final DynamicTexture PICKER_IMAGE_HL = new DynamicTexture(
             new NativeImage(NativeImage.Format.RGBA, PICKER_HL_SIZE_X, PICKER_SIZE_Y, false));
-    private static final ItemStack RANDOM_PICKER = Util.make(new ItemStack(Items.POTION), ItemStack::getOrCreateTag);
+    private static final ItemStack RANDOM_PICKER = new ItemStack(Items.POTION);
     private static final int RANDOM_PICKER_FREQUENCY = 3600;
 
     private static ItemStack updatePicker() {
-        CompoundTag tag = RANDOM_PICKER.getTag();
-        assert tag != null;
-        tag.putInt("CustomPotionColor", GuiUtils.getTimeColor(RANDOM_PICKER_FREQUENCY, 100, 50));
-        RANDOM_PICKER.setTag(tag);
+    	if (RANDOM_PICKER.has(DataComponents.POTION_CONTENTS)) 
+    		RANDOM_PICKER.remove(DataComponents.POTION_CONTENTS);
+        RANDOM_PICKER.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.of(GuiUtils.getTimeColor(RANDOM_PICKER_FREQUENCY, 100, 50)), List.of()));
         return RANDOM_PICKER;
     }
 

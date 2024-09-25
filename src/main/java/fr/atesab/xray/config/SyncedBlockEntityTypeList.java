@@ -1,13 +1,12 @@
 package fr.atesab.xray.config;
 
-import fr.atesab.xray.color.BlockEntityTypeIcon;
-import net.minecraft.core.Registry;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.ForgeRegistries;
-
 import java.util.List;
 import java.util.stream.Stream;
+
+import fr.atesab.xray.color.BlockEntityTypeIcon;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class SyncedBlockEntityTypeList extends SyncedRegistryList<BlockEntityType<?>> {
 
@@ -16,15 +15,15 @@ public class SyncedBlockEntityTypeList extends SyncedRegistryList<BlockEntityTyp
     }
 
     public SyncedBlockEntityTypeList() {
-        super(ForgeRegistries.BLOCK_ENTITY_TYPES);
+        super(BuiltInRegistries.BLOCK_ENTITY_TYPE);
     }
 
     public SyncedBlockEntityTypeList(BlockEntityType<?>... objects) {
-        super(objects, ForgeRegistries.BLOCK_ENTITY_TYPES);
+        super(objects, BuiltInRegistries.BLOCK_ENTITY_TYPE);
     }
 
     public SyncedBlockEntityTypeList(List<BlockEntityType<?>> objects) {
-        super(objects, ForgeRegistries.BLOCK_ENTITY_TYPES);
+        super(objects, BuiltInRegistries.BLOCK_ENTITY_TYPE);
     }
 
     public Stream<ItemStack> getIcons() {

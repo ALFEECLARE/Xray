@@ -107,7 +107,7 @@ public class XrayConfigMenu extends XrayScreen {
 
     private void openLink(URL url) {
         try {
-            Util.getPlatform().openUrl(url);
+            Util.getPlatform().openUri(url.toURI());
         } catch (Exception e) {
         }
     }

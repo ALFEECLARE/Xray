@@ -19,7 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -47,6 +49,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -62,23 +66,23 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(XrayMain.MOD_ID)
 public class XrayMain {
@@ -248,13 +252,13 @@ public class XrayMain {
 		return (a ? "-" : "") + d1 + s;
 	}
 
-	public XrayMain() {
+	public XrayMain(IEventBus modEventBus, ModContainer modContainer) {
 		instance = this;
-		IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+		IEventBus bus = modEventBus;
 		bus.addListener(this::setup);
 		bus.addListener(this::registerKeyBinding);
 
-		MinecraftForge.EVENT_BUS.register(this);
+		NeoForge.EVENT_BUS.register(this);
 	}
 
 	/**
@@ -280,14 +284,23 @@ public class XrayMain {
 	}
 
 	@SubscribeEvent
-	public void onEndTickEvent(TickEvent.ClientTickEvent ev) {
-		if (ev.phase != Phase.END)
-			return;
+	public void onEndTickEvent(ClientTickEvent.Pre ev) {
 		if (internalFullbrightState != 0 && internalFullbrightState < maxFullbrightStates) {
 			internalFullbrightState++;
 		}
 	}
 
+	@SubscribeEvent
+	public void onPreFrameRendaring(RenderFrameEvent.Pre ev) {
+		if (config.getSelectedBlockMode() != null) {
+			Minecraft client = Minecraft.getInstance();
+			for (SectionRenderDispatcher.RenderSection section : client.levelRenderer.visibleSections) {
+				section.setDirty(true);
+			}
+		}
+	}
+
+		
 	@SubscribeEvent
 	public void onKeyEvent(InputEvent.Key ev) {
 		Minecraft client = Minecraft.getInstance();
@@ -298,6 +311,7 @@ public class XrayMain {
 
 		if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), input.key())) {
 			config.getModes().forEach(mode -> mode.onKeyInput(input));
+			ModelBlockRenderer.clearCache();
 		}
 
 		if (fullbrightKey.consumeClick()) {
@@ -307,12 +321,12 @@ public class XrayMain {
 			config.getLocationConfig().setEnabled(!config.getLocationConfig().isEnabled());
 		}
 		if (configKey.consumeClick()) {
-			client.setScreen(new XrayMenu(null));
+			client.setScreen(new XrayMenu(null, null));
 		}
 	}
 
 	@SubscribeEvent
-	public void onHudRender(RenderGuiOverlayEvent ev) {
+	public void onHudRender(RenderGuiEvent.Post ev) {
 		GuiGraphics graphics = ev.getGuiGraphics();
 		Minecraft mc = Minecraft.getInstance();
 		Font render = mc.font;
@@ -380,7 +394,7 @@ public class XrayMain {
 			return;
 		}
 		PoseStack stack = ev.getPoseStack();
-		float delta = ev.getPartialTick();
+		float delta = ev.getPartialTick().getGameTimeDeltaPartialTick(false);
 		Camera mainCamera = minecraft.gameRenderer.getMainCamera();
 		Vec3 camera = mainCamera.getPosition();
 
@@ -394,14 +408,14 @@ public class XrayMain {
 		RenderSystem.disableDepthTest();
 		RenderSystem.enableBlend();
 		RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glEnable(GL11.GL_LINE);
-		GL11.glLineWidth(config.getEspLineWidth());
+		GL11.glEnable(GL11.GL_LINE_SMOOTH);
+		//GL11.glLineWidth(config.getEspLineWidth());
+		GL11.glLineWidth(1);
 		RenderSystem.depthMask(false);
 		RenderSystem.depthFunc(GL11.GL_NEVER);
 
 		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder buffer = tessellator.getBuilder();
-		buffer.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
+		BufferBuilder buffer = tessellator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
 
 		stack.pushPose();
 
@@ -427,8 +441,7 @@ public class XrayMain {
 
 					int squaredDistanceToChunk = (int) ((px - ccx) * (px - ccx) + (pz - ccz) * (pz - ccz));
 
-					// sqrt(2) ~= 3 / 2 "math"
-					if (squaredDistanceToChunk + 8 * 3 / 2 > maxDistanceSquared) {
+					if (squaredDistanceToChunk * 16 > maxDistanceSquared) {
 						// ignore this chunk, too far
 						continue;
 					}
@@ -505,10 +518,9 @@ public class XrayMain {
 					a = c.alpha() / 255F;
 				}
 
-				AABB aabb = type.getAABB(x, y, z);
+				AABB aabb = type.getSpawnAABB(x, y, z);
 
 				RenderUtils.renderLineBoxVanillaStyle(stack, buffer, aabb, r, g, b, a);
-				//LevelRenderer.renderLineBox(stack, buffer, aabb, r, g, b, a);
 
 				if (esp.hasTracer()) {
 					Vec3 center = aabb.getCenter();
@@ -517,7 +529,9 @@ public class XrayMain {
 				}
 			});
 		});
-		tessellator.end();
+		MeshData mesh = buffer.build();
+		if (mesh != null)
+			BufferUploader.drawWithShader(mesh);
 		stack.popPose();
 		RenderSystem.disableBlend();
 		RenderSystem.applyModelViewMatrix();
@@ -552,9 +566,6 @@ public class XrayMain {
 		fullbrightColor = ColorSupplier.DEFAULT.getColor();
 		loadConfigs();
 
-		ModList.get().getModContainerById(MOD_ID).ifPresent(con -> {
-			con.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,
-					() -> new ConfigScreenHandler.ConfigScreenFactory((mc, parent) -> new XrayMenu(parent)));
-		});
+		ModLoadingContext.get().registerExtensionPoint(IConfigScreenFactory.class,	() -> XrayMenu::new);
 	}
 }

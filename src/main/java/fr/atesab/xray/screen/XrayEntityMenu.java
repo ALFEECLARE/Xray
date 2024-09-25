@@ -15,12 +15,12 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class XrayEntityMenu extends XrayScreen {
     public record EntityUnion(EntityType<?> type, BlockEntityType<?> blockType, String text) implements EnumElement {
@@ -49,11 +49,13 @@ public class XrayEntityMenu extends XrayScreen {
             if (type != null) {
                 return type.getDescriptionId();
             } else {
-                ResourceLocation id = ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(blockType);
+                ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockType);
                 if (id == null) {
                     return blockType.getClass().getCanonicalName();
                 }
-                return id.toLanguageKey();
+                //vanilla's bug?
+                //return id.toLanguageKey();
+                return "block." + id.getNamespace() + "." + id.getPath();
             }
         }
     }

@@ -4,15 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public record EntityTypeIcon(EntityType<?> entity, ItemStack icon) {
 
@@ -85,6 +84,6 @@ public record EntityTypeIcon(EntityType<?> entity, ItemStack icon) {
     }
 
     public static List<EntityType<?>> getEntityOfType(MobCategory cat) {
-        return ForgeRegistries.ENTITY_TYPES.getValues().stream().filter(type -> type.getCategory() == cat).toList();
+        return BuiltInRegistries.ENTITY_TYPE.stream().filter(type -> type.getCategory() == cat).toList();
     }
 }

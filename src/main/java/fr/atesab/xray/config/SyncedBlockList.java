@@ -2,9 +2,8 @@ package fr.atesab.xray.config;
 
 import java.util.List;
 
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class SyncedBlockList extends SyncedRegistryList<Block> {
 
@@ -13,15 +12,15 @@ public class SyncedBlockList extends SyncedRegistryList<Block> {
     }
 
     public SyncedBlockList() {
-        super(ForgeRegistries.BLOCKS);
+        super(BuiltInRegistries.BLOCK);
     }
 
     public SyncedBlockList(Block... objects) {
-        super(objects, ForgeRegistries.BLOCKS);
+        super(objects, BuiltInRegistries.BLOCK);
     }
 
     public SyncedBlockList(List<Block> objects) {
-        super(objects, ForgeRegistries.BLOCKS);
+        super(objects, BuiltInRegistries.BLOCK);
     }
 
     @Override

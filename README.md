@@ -1,142 +1,27 @@
-# Xray
 
-- [Xray](#xray)
-- [Description](#description)
-- [Modes](#modes)
-  - [Xray](#xray-1)
-    - [Example](#example)
-    - [Config](#config)
-    - [Block selection](#block-selection)
-    - [Templates](#templates)
-  - [ESP and Tracers](#esp-and-tracers)
-    - [Example](#example-1)
-    - [Config](#config-1)
-    - [Entity selection](#entity-selection)
-    - [Templates](#templates-1)
-  - [Fullbright](#fullbright)
-  - [Location](#location)
-    - [Example](#example-2)
-    - [Config](#config-2)
-  - [Global config](#global-config)
+Installation information
+=======
 
-# Description
+This template repository can be directly cloned to get you started with a new
+mod. Simply create a new repository cloned from this one, by following the
+instructions at [github](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
 
-Bored by finding your diamonds legitimately? This mod is for you!
+Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
 
-This mod includes a Xray, an entity tracer and an entity ESP.
+> **Note**: For Eclipse, use tasks in `Launch Group` instead of ones founds in `Java Application`. A preparation task must run before launching the game. NeoGradle uses launch groups to do these subsequently.
 
-# Modes
+If at any point you are missing libraries in your IDE, or you've run into problems you can
+run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
+{this does not affect your code} and then start the process again.
 
-Here is the main menu, you can select configs.
+Mapping Names:
+============
+By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
+in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
+license. For the latest license text, refer to the mapping file itself, or the reference copy here:
+https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
 
-![menu](docs/assets/screens/mainmenu.png)
-
-## Xray
-
-### Example
-
-**Xray**
-
-![demo_xray](docs/assets/screens/demo_xray.png)
-
-**Cave**
-
-![demo_xray](docs/assets/screens/demo_cave.png)
-
-**Redstone**
-
-![demo_xray](docs/assets/screens/demo_redstone.png)
-
-### Config
-
-In the Xray menu you can set you Xray modes.
-
-![menu](docs/assets/screens/xray_list.png)
-
-The Menu is composed of buttons:
-
-- `"name"` - Update the color and the name of the mode
-- `blocks` - Set the blocks of this mode
-- `"key"` - Set the key of the mode
-- `Inclusive/Exclusive` - Set how the mode should handle the blocks:
-  - Exclusive : Like with the Xray Mode
-  - Inclusive : Like with the Cave Mode
-- `T` - Select a template
-- `+` - New mode
-- `-` - Delete this mode
-
-### Block selection
-
-![templates](docs/assets/screens/xray_list_block_selection.png)
-
-### Templates
-
-![templates](docs/assets/screens/xray_list_templates.png)
-
-## ESP and Tracers
-
-### Example
-
-**ESP**
-
-![demo_xray](docs/assets/screens/demo_esp.png)
-
-**Tracers**
-
-![demo_xray](docs/assets/screens/demo_tracers.png)
-
-### Config
-
-In the ESP menu you can set you ESP modes.
-
-![menu](docs/assets/screens/esp_list.png)
-
-The Menu is composed of buttons:
-
-- `"name"` - Update the color and the name of the mode
-- `entities` - Set the entities of this mode
-- `"key"` - Set the key of the mode
-- `Tracer (On/Off)` - Toggle the tracers for this mode
-- `T` - Select a template
-- `+` - New mode
-- `-` - Delete this mode
-
-### Entity selection
-
-![templates](docs/assets/screens/esp_list_entity_selection.png)
-
-### Templates
-
-![templates](docs/assets/screens/esp_list_templates.png)
-
-## Fullbright
-
-The fullbright remove the light in the game.
-
-![fullbright](docs/assets/screens/demo_fullbright.png)
-
-## Location
-
-### Example
-
-![Location](docs/assets/screens/demo_fullbright.png)
-
-### Config
-
-![Config](docs/assets/screens/location.png)
-
-You can config:
-
-- `Location` - Enable or not the location
-- `Show modes` - Show or not the current modes (ESP+Xray+Fullbright)
-- `Format` - Set the location format
-- `Options` - Add custom options to the format
-- `Reset` - Reset the format
-
-## Global config
-
-![Config](docs/assets/screens/config.png)
-
-You can config:
-
-- `Tracer Distance` - Set the maximum range of the tracer
+Additional Resources: 
+==========
+Community Documentation: https://docs.neoforged.net/  
+NeoForged Discord: https://discord.neoforged.net/
