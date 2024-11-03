@@ -135,4 +135,14 @@ public class LocationUtils {
 			return null;
 		}
 	}
+	
+	public static String getWeatherText(ClientLevel world) {
+		if (!world.isRaining()) {
+			return Component.translatable("x13.mod.location.opt.weather.fine").getString();
+		} else if (!world.isThundering()) {
+			return Component.translatable("x13.mod.location.opt.weather.rain").getString();
+		} else {
+			return Component.translatable("x13.mod.location.opt.weather.thunder").getString();
+		}
+	}
 }
