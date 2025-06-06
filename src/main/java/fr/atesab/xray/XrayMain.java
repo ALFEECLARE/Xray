@@ -107,7 +107,9 @@ public class XrayMain {
 
 	private int internalFullbrightState = 0;
 
-	private KeyMapping configKey, fullbrightKey, locationEnableKey;
+	private boolean blueBlueSkyEnable = false;
+
+	private KeyMapping configKey, fullbrightKey, locationEnableKey, blueBlueSkyKey;
 
 	private XrayConfig config;
 
@@ -204,8 +206,11 @@ public class XrayMain {
 		return gammaBypass;
 	}
 
-
-	private static void log(String message) {
+	public boolean isBlueBlueSkyEnable() {
+		return blueBlueSkyEnable;
+	}
+	
+	public static void log(String message) {
 		log.info("[{}] {}", log.getName(), message);
 	}
 
@@ -323,6 +328,9 @@ public class XrayMain {
 		if (configKey.consumeClick()) {
 			client.setScreen(new XrayMenu(null, null));
 		}
+		if (blueBlueSkyKey.consumeClick()) {
+			blueBlueSkyEnable = !blueBlueSkyEnable;
+		}
 	}
 
 	@SubscribeEvent
@@ -353,6 +361,13 @@ public class XrayMain {
             if (fullBrightEnable) {
                 buffer.append(
 						Component.literal("[" + fullbrightMode.getModeName() + "] ")
+                                .withStyle(s -> s.withColor(fullbrightMode.getColor()))
+                );
+            }
+            if (blueBlueSkyEnable) {
+            	//敢えて同色
+                buffer.append(
+						Component.literal("[" + I18n.get("x13.mod.blueBlueSky") + "] ")
                                 .withStyle(s -> s.withColor(fullbrightMode.getColor()))
                 );
             }
@@ -555,10 +570,12 @@ public class XrayMain {
 		fullbrightKey = new KeyMapping("x13.mod.fullbright", GLFW.GLFW_KEY_H, "key.categories.xray");
 		configKey = new KeyMapping("x13.mod.config", GLFW.GLFW_KEY_N, "key.categories.xray");
 		locationEnableKey = new KeyMapping("x13.mod.locationEnable", GLFW.GLFW_KEY_J, "key.categories.xray");
+		blueBlueSkyKey = new KeyMapping("x13.mod.blueBlueSky", GLFW.GLFW_KEY_UNKNOWN, "key.categories.xray");
 
 		ev.register(fullbrightKey);
 		ev.register(configKey);
 		ev.register(locationEnableKey);
+		ev.register(blueBlueSkyKey);
 	}
 
 	private void setup(final FMLCommonSetupEvent event) {
