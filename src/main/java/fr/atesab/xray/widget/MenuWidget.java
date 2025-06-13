@@ -54,11 +54,9 @@ public class MenuWidget extends AbstractButton {
         float scaleX = getWidth() * 3 / 4f / 16f;
         float scaleY = getHeight() * 3 / 4f / 16f;
         modelStack.scale(scaleX, scaleY, 1);
-        RenderSystem.applyModelViewMatrix();
         RenderSystem.assertOnRenderThread();
         GuiUtils.renderItemIdentity(graphics, itemStack, -8, -8);
         modelStack.popMatrix();
-        RenderSystem.applyModelViewMatrix();
 
         PoseStack stack = graphics.pose();
         stack.pushPose();

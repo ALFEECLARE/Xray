@@ -48,17 +48,14 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -89,10 +86,10 @@ public class XrayMain {
 	public static final String MOD_ID = "atianxray";
 	public static final String MOD_NAME = "Xray";
 	public static final String[] MOD_AUTHORS = { "ATE47", "ThaEin", "ALFECLARE" };
-	public static final URL MOD_SOURCE = XrayUtils.soWhat(() -> new URL("https://github.com/ate47/Xray"));
-	public static final URL MOD_ISSUE = XrayUtils.soWhat(() -> new URL("https://github.com/ate47/Xray/issues"));
+	public static final URL MOD_SOURCE = XrayUtils.soWhat(() -> new URL("https://github.com/ALFEECLARE/Xray"));
+	public static final URL MOD_ISSUE = XrayUtils.soWhat(() -> new URL("https://github.com/ALFEECLARE/Xray/issues"));
 	public static final URL MOD_LINK = XrayUtils
-			.soWhat(() -> new URL("https://www.curseforge.com/minecraft/mc-mods/xray-1-13-rift-modloader"));
+			.soWhat(() -> new URL("https://www.curseforge.com/minecraft/mc-mods/atianxray"));
 	private static final int maxFullbrightStates = 20;
 	private static final Logger log = LogManager.getLogger(MOD_ID);
 
@@ -229,13 +226,12 @@ public class XrayMain {
 		return this;
 	}
 
-	public int shouldSideBeRendered(BlockState adjacentState, BlockGetter blockState, BlockPos blockAccess,
-			Direction pos, CallbackInfoReturnable<Boolean> ci) {
+	public int shouldSideBeRendered(BlockState currnetState, BlockState neighberState, CallbackInfoReturnable<Boolean> ci) {
 		if (ci == null)
 			ci = new CallbackInfoReturnable<>("shouldSideBeRendered", true);
 
 		for (BlockConfig mode : getConfig().getBlockConfigs()) {
-			mode.shouldSideBeRendered(adjacentState, blockState, blockAccess, pos, ci);
+			mode.shouldSideBeRendered(currnetState, neighberState, ci);
 		}
 		if (ci.isCancelled())
 			return ci.getReturnValue().booleanValue() ? 0 : 1;
@@ -417,7 +413,7 @@ public class XrayMain {
 			return;
 		}
 
-		RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		// RenderSystem.depthMask(false);
 		RenderSystem.disableDepthTest();
@@ -434,7 +430,6 @@ public class XrayMain {
 
 		stack.pushPose();
 
-		RenderSystem.applyModelViewMatrix();
 		stack.setIdentity();
 		stack.translate(-camera.x, -camera.y, -camera.z);
 		Vector3f look = mainCamera.getLookVector();
@@ -549,7 +544,6 @@ public class XrayMain {
 			BufferUploader.drawWithShader(mesh);
 		stack.popPose();
 		RenderSystem.disableBlend();
-		RenderSystem.applyModelViewMatrix();
 		RenderSystem.setShaderColor(1, 1, 1, 1);
 		RenderSystem.enableDepthTest();
 		RenderSystem.depthMask(true);

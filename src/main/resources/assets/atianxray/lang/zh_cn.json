@@ -61,6 +61,8 @@
   "x13.mod.location.opt.fx": "地面位置 x",
   "x13.mod.location.opt.fy": "地面位置 y",
   "x13.mod.location.opt.fz": "地面位置 z",
+  "x13.mod.location.opt.horizontalDegree": "Horizontal Degree",
+  "x13.mod.location.opt.verticalDegree": "Vertical Degree",
   "x13.mod.location.opt.name": "玩家名字",
   "x13.mod.location.opt.fps": "FPS",
   "x13.mod.location.opt.fps.debug": "FPS debug",

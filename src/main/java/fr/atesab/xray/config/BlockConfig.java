@@ -12,13 +12,10 @@ import fr.atesab.xray.XrayMain;
 import fr.atesab.xray.color.EnumElement;
 import fr.atesab.xray.view.ViewMode;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -210,15 +207,13 @@ public class BlockConfig extends AbstractModeConfig implements SideRenderer, Clo
     }
 
     @Override
-    public void shouldSideBeRendered(BlockState adjacentState, BlockGetter blockState, BlockPos blockAccess,
-            Direction pos, CallbackInfoReturnable<Boolean> ci) {
+    public void shouldSideBeRendered(BlockState currentState,BlockState neighberState, CallbackInfoReturnable<Boolean> ci) {
         if (!isEnabled())
             return;
 
-        String name = Objects.requireNonNullElse(BuiltInRegistries.BLOCK.getKey(adjacentState.getBlock()), "").toString();
+        String name = Objects.requireNonNullElse(BuiltInRegistries.BLOCK.getKey(currentState.getBlock()), "").toString();
         boolean present = blocks.contains(name);
-        boolean shouldRender = viewMode.getViewer().shouldRenderSide(present, adjacentState, blockState,
-                blockAccess, pos);
+        boolean shouldRender = viewMode.getViewer().shouldRenderSide(present, currentState, neighberState);
         ci.setReturnValue(shouldRender);
     }
 

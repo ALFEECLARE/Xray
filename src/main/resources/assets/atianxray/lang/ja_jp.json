@@ -61,6 +61,8 @@
   "x13.mod.location.opt.fx": "X座標(整数表現)",
   "x13.mod.location.opt.fy": "Y座標(整数表現)",
   "x13.mod.location.opt.fz": "Z座標(整数表現)",
+  "x13.mod.location.opt.horizontalDegree": "方位角",
+  "x13.mod.location.opt.verticalDegree": "仰角",
   "x13.mod.location.opt.name": "プレイヤー名",
   "x13.mod.location.opt.fps": "FPS",
   "x13.mod.location.opt.fps.debug": "FPS(デバッグ)",

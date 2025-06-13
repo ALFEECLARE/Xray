@@ -17,7 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.language.I18n;
@@ -59,7 +59,7 @@ public class ColorSelector extends XrayScreen {
     private static ItemStack updatePicker() {
     	if (RANDOM_PICKER.has(DataComponents.POTION_CONTENTS)) 
     		RANDOM_PICKER.remove(DataComponents.POTION_CONTENTS);
-        RANDOM_PICKER.set(DataComponents.POTION_CONTENTS, new PotionContents(Optional.empty(), Optional.of(GuiUtils.getTimeColor(RANDOM_PICKER_FREQUENCY, 100, 50)), List.of()));
+        RANDOM_PICKER.set(DataComponents.POTION_CONTENTS,new PotionContents(Optional.empty(), Optional.of(GuiUtils.getTimeColor(RANDOM_PICKER_FREQUENCY, 100, 50)), List.of(), Optional.empty()));
         return RANDOM_PICKER;
     }
 
@@ -81,7 +81,7 @@ public class ColorSelector extends XrayScreen {
             for (int y = 0; y < pixels.getHeight(); y++) { // saturation
                 int color = GuiUtils.fromHSL(hue, y * 100 / pixels.getHeight(), lightness);
                 for (int x = 0; x < pixels.getWidth(); x++)
-                    pixels.setPixelRGBA(x, y, GuiUtils.blueToRed(color));
+                    pixels.setPixel(x, y, GuiUtils.blueToRed(color));
             }
 
             PICKER_IMAGE_S.upload();
@@ -96,7 +96,7 @@ public class ColorSelector extends XrayScreen {
 
             for (int x = 0; x < pixels.getWidth(); x++) // hue
                 for (int y = 0; y < pixels.getHeight(); y++) // lightness
-                    pixels.setPixelRGBA(x, y, GuiUtils.blueToRed(
+                    pixels.setPixel(x, y, GuiUtils.blueToRed(
                             GuiUtils.fromHSL(x * 360 / pixels.getWidth(), saturation, y * 100 / pixels.getHeight())));
 
             PICKER_IMAGE_HL.upload();
@@ -170,7 +170,7 @@ public class ColorSelector extends XrayScreen {
 
         if (!advanced) {
             // S PICKER
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShader(CoreShaders.POSITION_TEX);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, PICKER_S_RESOURCE);
             GuiUtils.drawScaledCustomSizeModalRect(width / 2 + 180, height / 2 - 76 - getShiftY(), 0, 0, PICKER_S_SIZE_X,
@@ -184,7 +184,7 @@ public class ColorSelector extends XrayScreen {
                     height / 2 - 76 + saturationDelta + 1 - getShiftY(), 0xff999999);
 
             // HL Picker
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
+            RenderSystem.setShader(CoreShaders.POSITION_TEX);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.setShaderTexture(0, PICKER_HL_RESOURCE);
             GuiUtils.drawScaledCustomSizeModalRect(width / 2 - 158, height / 2 - 76 - getShiftY(), 0, 0, PICKER_HL_SIZE_X,

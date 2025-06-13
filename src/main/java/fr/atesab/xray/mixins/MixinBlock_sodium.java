@@ -18,7 +18,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class MixinBlock_sodium {
 	@Inject(at = @At("RETURN"), method = "shouldDrawSide(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Z",cancellable = true,remap=false)
 	public void shouldDrawSideMixin(BlockState selfState, BlockGetter view, BlockPos pos, Direction facing, CallbackInfoReturnable<Boolean> ci) {
-		XrayMain.getMod().shouldSideBeRendered(selfState, view, pos, facing, ci);
+		XrayMain.getMod().shouldSideBeRendered(selfState, view.getBlockState(pos), ci);
 	}
 	
 	

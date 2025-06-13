@@ -61,6 +61,8 @@
   "x13.mod.location.opt.fx": "Position arrondie x",
   "x13.mod.location.opt.fy": "Position arrondie y",
   "x13.mod.location.opt.fz": "Position arrondie z",
+  "x13.mod.location.opt.horizontalDegree": "Horizontal Degree",
+  "x13.mod.location.opt.verticalDegree": "Vertical Degree",
   "x13.mod.location.opt.name": "Nom du joueur",
   "x13.mod.location.opt.fps": "IPS",
   "x13.mod.location.opt.fps.debug": "IPS debug",

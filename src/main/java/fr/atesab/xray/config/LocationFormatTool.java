@@ -123,7 +123,7 @@ public class LocationFormatTool implements EnumElement {
     public static final LocationFormatTool MAINHAND_NAME = register("x13.mod.location.opt.mainhandName", Items.DIAMOND_SWORD, "mainhandName",
     		(mc, player, world) -> BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()).getPath());
     public static final LocationFormatTool MAINHAND_NAME_TRANSLATE = register("x13.mod.location.opt.mainhandTranslate", Items.DIAMOND_SWORD, "mainhandTranslate",
-    		(mc, player, world) -> I18n.get(player.getMainHandItem().getDescriptionId()).toString());
+    		(mc, player, world) -> I18n.get(player.getMainHandItem().getItem().getDescriptionId()));
     public static final LocationFormatTool MAINHAND_NAME_DISPLAYNAME = register("x13.mod.location.opt.mainhandDispName", Items.DIAMOND_SWORD, "mainhandDispName",
     		(mc, player, world) -> player.getMainHandItem().getHoverName().getString());
     public static final LocationFormatTool MAINHAND_DURABILITY = register("x13.mod.location.opt.mainhandDurability", Items.DIAMOND_SWORD, "mainhandDurability",
@@ -133,17 +133,17 @@ public class LocationFormatTool implements EnumElement {
     public static final LocationFormatTool OFFHAND_NAME = register("x13.mod.location.opt.offhandName", Items.SHIELD, "offhandName",
     		(mc, player, world) -> BuiltInRegistries.ITEM.getKey(player.getOffhandItem().getItem()).getPath());
     public static final LocationFormatTool OFFHAND_NAME_TRANSLATE = register("x13.mod.location.opt.offhandTranslate", Items.SHIELD, "offhandTranslate",
-    		(mc, player, world) -> I18n.get(player.getOffhandItem().getDescriptionId()).toString());
-    public static final LocationFormatTool OFFHAND_NAME_DISPLAYNAME = register("x13.mod.location.opt.offhandDispName", Items.DIAMOND_SWORD, "offhandDispName",
+    		(mc, player, world) -> I18n.get(player.getOffhandItem().getItem().getDescriptionId()));
+    public static final LocationFormatTool OFFHAND_NAME_DISPLAYNAME = register("x13.mod.location.opt.offhandDispName", Items.SHIELD, "offhandDispName",
     		(mc, player, world) -> player.getOffhandItem().getHoverName().getString());
     public static final LocationFormatTool OFFHAND_DURABILITY = register("x13.mod.location.opt.offhandDurability", Items.SHIELD, "offhandDurability",
     		(mc, player, world) -> LocationUtils.getDurabilityOrFoodData(player.getOffhandItem()));
-    public static final LocationFormatTool OFFHAND_MAXDURABILITY = register("x13.mod.location.opt.mainhandMaxDurability", Items.SHIELD, "offhandMaxDurability",
+    public static final LocationFormatTool OFFHAND_MAXDURABILITY = register("x13.mod.location.opt.offhandMaxDurability", Items.SHIELD, "offhandMaxDurability",
     		(mc, player, world) -> LocationUtils.getMaxDurabilityOrAfterFoodData(player.getOffhandItem(),currentNutrition,currentSaturation));
     public static final LocationFormatTool HELMET_NAME = register("x13.mod.location.opt.helmetName", Items.DIAMOND_HELMET, "helmetName",
     		(mc, player, world) -> BuiltInRegistries.ITEM.getKey(player.getItemBySlot(EquipmentSlot.HEAD).getItem()).getPath());
     public static final LocationFormatTool HELMET_NAME_TRANSLATE = register("x13.mod.location.opt.helmetTranslate", Items.DIAMOND_HELMET, "helmetTranslate",
-    		(mc, player, world) -> I18n.get(player.getItemBySlot(EquipmentSlot.HEAD).getDescriptionId()).toString());
+    		(mc, player, world) -> I18n.get(player.getItemBySlot(EquipmentSlot.HEAD).getItem().getDescriptionId()));
     public static final LocationFormatTool HELMET_NAME_DISPLAYNAME = register("x13.mod.location.opt.helmetDispName", Items.DIAMOND_HELMET, "helmetDispName",
     		(mc, player, world) -> player.getItemBySlot(EquipmentSlot.HEAD).getHoverName().getString());
     public static final LocationFormatTool HELMET_DURABILITY = register("x13.mod.location.opt.helmetDurability", Items.DIAMOND_HELMET, "helmetDurability",
@@ -153,7 +153,7 @@ public class LocationFormatTool implements EnumElement {
     public static final LocationFormatTool CHESTPLATE_NAME = register("x13.mod.location.opt.chestplateName", Items.DIAMOND_CHESTPLATE, "chestplateName",
     		(mc, player, world) -> BuiltInRegistries.ITEM.getKey(player.getItemBySlot(EquipmentSlot.CHEST).getItem()).getPath());
     public static final LocationFormatTool CHESTPLATE_NAME_TRANSLATE = register("x13.mod.location.opt.chestplateTranslate", Items.DIAMOND_CHESTPLATE, "chestplateTranslate",
-    		(mc, player, world) -> I18n.get(player.getItemBySlot(EquipmentSlot.CHEST).getDescriptionId()).toString());
+    		(mc, player, world) -> I18n.get(player.getItemBySlot(EquipmentSlot.CHEST).getItem().getDescriptionId()));
     public static final LocationFormatTool CHESTPLATE_NAME_DISPLAYNAME = register("x13.mod.location.opt.chestplateDispName", Items.DIAMOND_CHESTPLATE, "chestplateDispName",
     		(mc, player, world) -> player.getItemBySlot(EquipmentSlot.CHEST).getHoverName().getString());
     public static final LocationFormatTool CHESTPLATE_DURABILITY = register("x13.mod.location.opt.chestplateDurability", Items.DIAMOND_CHESTPLATE, "chestplateDurability",
@@ -163,7 +163,7 @@ public class LocationFormatTool implements EnumElement {
     public static final LocationFormatTool LEGGINGS_NAME = register("x13.mod.location.opt.leggingsName", Items.DIAMOND_LEGGINGS, "leggingsName",
     		(mc, player, world) -> BuiltInRegistries.ITEM.getKey(player.getItemBySlot(EquipmentSlot.LEGS).getItem()).getPath());
     public static final LocationFormatTool LEGGINGS_NAME_TRANSLATE = register("x13.mod.location.opt.leggingsTranslate", Items.DIAMOND_LEGGINGS, "leggingsTranslate",
-    		(mc, player, world) -> I18n.get(player.getItemBySlot(EquipmentSlot.LEGS).getDescriptionId()).toString());
+    		(mc, player, world) -> I18n.get(player.getItemBySlot(EquipmentSlot.LEGS).getItem().getDescriptionId()));
     public static final LocationFormatTool LEGGINGS_NAME_DISPLAYNAME = register("x13.mod.location.opt.leggingsDispName", Items.DIAMOND_LEGGINGS, "leggingsDispName",
     		(mc, player, world) -> player.getItemBySlot(EquipmentSlot.LEGS).getHoverName().getString());
     public static final LocationFormatTool LEGGINGS_DURABILITY = register("x13.mod.location.opt.leggingsDurability", Items.DIAMOND_LEGGINGS, "leggingsDurability",
@@ -173,7 +173,7 @@ public class LocationFormatTool implements EnumElement {
     public static final LocationFormatTool BOOTS_NAME = register("x13.mod.location.opt.bootsName", Items.DIAMOND_BOOTS, "bootsName",
     		(mc, player, world) -> BuiltInRegistries.ITEM.getKey(player.getItemBySlot(EquipmentSlot.FEET).getItem()).getPath());
     public static final LocationFormatTool BOOTS_NAME_TRANSLATE = register("x13.mod.location.opt.bootsTranslate", Items.DIAMOND_BOOTS, "bootsTranslate",
-    		(mc, player, world) -> I18n.get(player.getItemBySlot(EquipmentSlot.FEET).getDescriptionId()).toString());
+    		(mc, player, world) -> I18n.get(player.getItemBySlot(EquipmentSlot.FEET).getItem().getDescriptionId()));
     public static final LocationFormatTool BOOTS_NAME_DISPLAYNAME = register("x13.mod.location.opt.bootsDispName", Items.DIAMOND_BOOTS, "bootsDispName",
     		(mc, player, world) -> player.getItemBySlot(EquipmentSlot.FEET).getHoverName().getString());
     public static final LocationFormatTool BOOTS_DURABILITY = register("x13.mod.location.opt.bootsDurability", Items.DIAMOND_BOOTS, "bootsDurability",

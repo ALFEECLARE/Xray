@@ -76,7 +76,7 @@ public class LocationUtils {
 		if (item.isDamageableItem()) {
 			return String.valueOf(getRemainDurability(item));
 		} else if (item.getItem().components().has(DataComponents.FOOD)) {
-			return String.valueOf(item.getFoodProperties(null).nutrition()) + "(" + String.format("%.1f",getAddSaturation(item)) + ")";
+			return String.valueOf(item.get(DataComponents.FOOD).nutrition()) + "(" + String.format("%.1f",getAddSaturation(item)) + ")";
 		} else {
 			return "-";
 		}
@@ -86,8 +86,8 @@ public class LocationUtils {
 		if (item.isDamageableItem()) {
 			return String.valueOf(item.getMaxDamage());
 		} else if (item.getItem().components().has(DataComponents.FOOD)) {
-			int afterNutrition = Math.min(currentNutrition + item.getFoodProperties(null).nutrition(), 20);
-			float afterSaturation = Math.min(currentSaturation + item.getFoodProperties(null).saturation(), afterNutrition);
+			int afterNutrition = Math.min(currentNutrition + item.get(DataComponents.FOOD).nutrition(), 20);
+			float afterSaturation = Math.min(currentSaturation + item.get(DataComponents.FOOD).saturation(), afterNutrition);
 			return String.valueOf(afterNutrition) + "(" + String.format("%.1f",afterSaturation) + ")";
 		} else {
 			return "-";
@@ -99,7 +99,7 @@ public class LocationUtils {
 	}
 
 	public static float getAddSaturation(ItemStack item) {
-		return item.getFoodProperties(null).saturation();
+		return item.get(DataComponents.FOOD).saturation();
 	}
 	
 	public static String getCorrectToolText(BlockState blockstate) {
