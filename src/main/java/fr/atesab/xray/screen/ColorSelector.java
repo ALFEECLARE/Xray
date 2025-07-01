@@ -8,6 +8,8 @@ import java.util.function.IntConsumer;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTexture;
+import com.mojang.blaze3d.textures.TextureFormat;
 
 import fr.atesab.xray.XrayMain;
 import fr.atesab.xray.utils.GuiUtils;
@@ -17,7 +19,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.language.I18n;
@@ -49,10 +50,14 @@ public class ColorSelector extends XrayScreen {
     private static boolean pickerInit = false;
     private static final ResourceLocation PICKER_S_RESOURCE = ResourceLocation.tryBuild(XrayMain.MOD_ID, "picker_hl");
     private static final ResourceLocation PICKER_HL_RESOURCE = ResourceLocation.tryBuild(XrayMain.MOD_ID, "picker_s");
-    private static final DynamicTexture PICKER_IMAGE_S = new DynamicTexture(
+    private static final DynamicTexture PICKER_IMAGE_S = new DynamicTexture(PICKER_S_RESOURCE::toString,
             new NativeImage(NativeImage.Format.RGBA, PICKER_S_SIZE_X, PICKER_SIZE_Y, false));
-    private static final DynamicTexture PICKER_IMAGE_HL = new DynamicTexture(
+    private static final DynamicTexture PICKER_IMAGE_HL = new DynamicTexture(PICKER_HL_RESOURCE::toString,
             new NativeImage(NativeImage.Format.RGBA, PICKER_HL_SIZE_X, PICKER_SIZE_Y, false));
+    private static final GpuTexture PICKER_TEXTURE_S = RenderSystem.getDevice().createTexture(PICKER_S_RESOURCE.toString(),
+            TextureFormat.RGBA8, PICKER_S_SIZE_X, PICKER_SIZE_Y, 1);
+    private static final GpuTexture PICKER_TEXTURE_HL = RenderSystem.getDevice().createTexture(PICKER_HL_RESOURCE.toString(),
+            TextureFormat.RGBA8, PICKER_HL_SIZE_X, PICKER_SIZE_Y, 1);
     private static final ItemStack RANDOM_PICKER = new ItemStack(Items.POTION);
     private static final int RANDOM_PICKER_FREQUENCY = 3600;
 
@@ -170,9 +175,8 @@ public class ColorSelector extends XrayScreen {
 
         if (!advanced) {
             // S PICKER
-            RenderSystem.setShader(CoreShaders.POSITION_TEX);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, PICKER_S_RESOURCE);
+            RenderSystem.setShaderTexture(0, PICKER_TEXTURE_S);
             GuiUtils.drawScaledCustomSizeModalRect(width / 2 + 180, height / 2 - 76 - getShiftY(), 0, 0, PICKER_S_SIZE_X,
                     PICKER_SIZE_Y, 20, 76 * 2, PICKER_S_SIZE_X, PICKER_SIZE_Y);
 
@@ -184,9 +188,8 @@ public class ColorSelector extends XrayScreen {
                     height / 2 - 76 + saturationDelta + 1 - getShiftY(), 0xff999999);
 
             // HL Picker
-            RenderSystem.setShader(CoreShaders.POSITION_TEX);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, PICKER_HL_RESOURCE);
+            RenderSystem.setShaderTexture(0, PICKER_TEXTURE_HL);
             GuiUtils.drawScaledCustomSizeModalRect(width / 2 - 158, height / 2 - 76 - getShiftY(), 0, 0, PICKER_HL_SIZE_X,
                     PICKER_SIZE_Y, 158 + 176, 76 * 2, PICKER_HL_SIZE_X, PICKER_SIZE_Y);
 

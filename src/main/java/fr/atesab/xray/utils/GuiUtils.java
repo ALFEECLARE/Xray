@@ -6,10 +6,9 @@ import java.util.Random;
 
 import org.joml.Matrix4f;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.opengl.GlConst;
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -20,8 +19,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.CoreShaders;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
@@ -285,10 +283,10 @@ public class GuiUtils {
     public static void drawItemStack(GuiGraphics graphics, ItemStack itemstack, int x, int y) {
         if (itemstack == null || itemstack.isEmpty())
             return;
-        RenderSystem.enableDepthTest();
+        GlStateManager._enableDepthTest();
         GuiUtils.renderItemIdentity(graphics, itemstack, x, y);
         GuiUtils.renderItemDecorationIdentity(graphics, Minecraft.getInstance().font, itemstack, x, y);
-        RenderSystem.disableBlend();
+        GlStateManager._disableBlend();
     }
 
     /**
@@ -368,7 +366,7 @@ public class GuiUtils {
                 .setUv((u + (float) uWidth) * scaleX, v * scaleY).setColor(red, green, blue, alpha);
         bufferbuilder.addVertex((float)x, (float)y, 0.0f).setUv(u * scaleX, v * scaleY)
                 .setColor(red, green, blue, alpha);
-        BufferUploader.draw(bufferbuilder.build());
+        Minecraft.getInstance().levelRenderer.getVisibleSections().getFirst().uploadSectionLayer(RenderType.LINES, bufferbuilder.build());
     }
 
     /**
@@ -651,7 +649,7 @@ public class GuiUtils {
         graphics.fillGradient(x - 3, y - 3, x + width + 3, y - 3 + 1, z, 0x505000FF, 0x505000FF);
         graphics.fillGradient(x - 3, y + height + 2, x + width + 3, y + height + 3, z, 0x5028007F, 0x5028007F);
         //tessellator.end();
-        RenderSystem.disableBlend();
+        GlStateManager._disableBlend();
     }
 
     public static void renderItemIdentity(GuiGraphics graphics, ItemStack stack, int x, int y) {
@@ -727,19 +725,23 @@ public class GuiUtils {
         float greenRightBottom = (float) (rightBottomColor >> 8 & 255) / 255.0F;
         float blueRightBottom = (float) (rightBottomColor & 255) / 255.0F;
         BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,
-                GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO);
+        GlStateManager._enableBlend();
+        GlStateManager._blendFuncSeparate(GlConst.GL_SRC_ALPHA,
+        		GlConst.GL_ONE_MINUS_SRC_ALPHA,
+        		GlConst.GL_ONE,
+                GlConst.GL_ZERO);
+        //RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+        GlStateManager._blendFuncSeparate(GlConst.GL_SRC_ALPHA,
+        		GlConst.GL_ONE_MINUS_SRC_ALPHA,
+        		GlConst.GL_ONE,
+                GlConst.GL_ZERO);
         Matrix4f mat = graphics.pose().last().pose();
         bufferbuilder.addVertex(mat, right, top, zLevel).setColor(redRightTop, greenRightTop, blueRightTop, alphaRightTop);
         bufferbuilder.addVertex(mat, left, top, zLevel).setColor(redLeftTop, greenLeftTop, blueLeftTop, alphaLeftTop);
         bufferbuilder.addVertex(mat, left, bottom, zLevel).setColor(redLeftBottom, greenLeftBottom, blueLeftBottom, alphaLeftBottom);
         bufferbuilder.addVertex(mat, right, bottom, zLevel).setColor(redRightBottom, greenRightBottom, blueRightBottom, alphaRightBottom);
-        BufferUploader.draw(bufferbuilder.build());
-        RenderSystem.disableBlend();
+        Minecraft.getInstance().levelRenderer.getVisibleSections().getFirst().uploadSectionLayer(RenderType.LINES, bufferbuilder.build());
+        GlStateManager._disableBlend();
     }
 
     /**

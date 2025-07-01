@@ -13,15 +13,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -48,7 +45,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.resources.language.I18n;
@@ -293,6 +289,8 @@ public class XrayMain {
 
 	@SubscribeEvent
 	public void onPreFrameRendaring(RenderFrameEvent.Pre ev) {
+		if (config == null)
+				return;
 		if (config.getSelectedBlockMode() != null) {
 			Minecraft client = Minecraft.getInstance();
 			for (SectionRenderDispatcher.RenderSection section : client.levelRenderer.visibleSections) {
@@ -404,30 +402,21 @@ public class XrayMain {
 		if (level == null || player == null) {
 			return;
 		}
+		RenderPipeline usingPipeLine = RenderUtils.buildLinePipeline("esp_lines");
+		RenderSystem.AutoStorageIndexBuffer autoStorageBuffer = RenderUtils.buildBuffer(VertexFormat.Mode.LINES);
+
 		PoseStack stack = ev.getPoseStack();
 		float delta = ev.getPartialTick().getGameTimeDeltaPartialTick(false);
 		Camera mainCamera = minecraft.gameRenderer.getMainCamera();
 		Vec3 camera = mainCamera.getPosition();
-
+		
 		if (config.getEspConfigs().stream().noneMatch(ESPConfig::isEnabled)) {
 			return;
 		}
 
-		RenderSystem.setShader(CoreShaders.POSITION_COLOR);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		// RenderSystem.depthMask(false);
-		RenderSystem.disableDepthTest();
-		RenderSystem.enableBlend();
-		RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-		GL11.glEnable(GL11.GL_LINE_SMOOTH);
-		//GL11.glLineWidth(config.getEspLineWidth());
-		GL11.glLineWidth(1);
-		RenderSystem.depthMask(false);
-		RenderSystem.depthFunc(GL11.GL_NEVER);
-
+		
 		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder buffer = tessellator.begin(VertexFormat.Mode.DEBUG_LINES, DefaultVertexFormat.POSITION_COLOR);
-
+		BufferBuilder buffer = tessellator.begin(usingPipeLine.getVertexFormatMode(), usingPipeLine.getVertexFormat());
 		stack.pushPose();
 
 		stack.setIdentity();
@@ -503,7 +492,6 @@ public class XrayMain {
 			if ((config.getMaxTracerRange() != 0 && e.distanceToSqr(player) > maxDistanceSquared) || player == e) {
 				return;
 			}
-
 			EntityType<?> type = e.getType();
 
 			boolean damage = !config.isDamageIndicatorDisabled() && e instanceof LivingEntity le && le.getLastDamageSource() != null;
@@ -539,17 +527,8 @@ public class XrayMain {
 				}
 			});
 		});
-		MeshData mesh = buffer.build();
-		if (mesh != null)
-			BufferUploader.drawWithShader(mesh);
 		stack.popPose();
-		RenderSystem.disableBlend();
-		RenderSystem.setShaderColor(1, 1, 1, 1);
-		RenderSystem.enableDepthTest();
-		RenderSystem.depthMask(true);
-		RenderSystem.lineWidth(1.0F);
-		RenderSystem.depthFunc(GL11.GL_LEQUAL);
-		GL11.glDisable(GL11.GL_LINE_SMOOTH);
+		RenderUtils.renderIfExists(buffer, usingPipeLine, autoStorageBuffer);
 	}
 
 	/**

@@ -15,7 +15,7 @@ public class MixinClientLevel {
 	@Inject(method = "getSkyColor(Lnet/minecraft/world/phys/Vec3;F)I", at = @At("HEAD"), cancellable = true)
 	public void getSkyColorMixin(Vec3 pPos, float pPartialTick, CallbackInfoReturnable<Integer> info) {
 		if (XrayMain.getMod().isBlueBlueSkyEnable()) {
-			info.setReturnValue(ARGB.color(1,167,121));
+			info.setReturnValue(ARGB.color(1,121,167));
 		}
 	}
 	
