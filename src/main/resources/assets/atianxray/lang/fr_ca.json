@@ -78,6 +78,8 @@
   "x13.mod.location.opt.lookingTranslate": "Nom du bloc regardé (Traduit)",
   "x13.mod.location.opt.lookingRequestedTool": "Looking Block Requested Tool",
   "x13.mod.location.opt.lookingDestoryProgress": "Looking Block Destory Progress",
+  "x13.mod.location.opt.lookingGrowthLevel": "Looking Block Growth Level",
+  "x13.mod.location.opt.lookingMaxLevel": "Looking Block Max Growth Level",
   "x13.mod.location.opt.block.requiredTool": "%s",
   "x13.mod.location.opt.block.requiredTool.pickaxe": "Pickaxe",
   "x13.mod.location.opt.block.requiredTool.axe": "Axe",
