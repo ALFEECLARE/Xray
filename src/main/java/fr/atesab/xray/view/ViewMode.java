@@ -2,25 +2,25 @@ package fr.atesab.xray.view;
 
 import fr.atesab.xray.color.EnumElement;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
 public enum ViewMode implements EnumElement {
     /**
      * Default mode, like in Xray and Redstone mode
      */
-    EXCLUSIVE("x13.mod.mode.view.exclusive", new ItemStack(Blocks.DIAMOND_ORE), (il, currentState, neighberState) -> il),
+    EXCLUSIVE("x13.mod.mode.view.exclusive", Blocks.DIAMOND_ORE, (il, currentState, neighberState) -> il),
     /**
      * Inclusive mode, like in Cave Mode
      */
-    INCLUSIVE("x13.mod.mode.view.inclusive", new ItemStack(Blocks.STONE), (il, currentState, neighberState) -> !il
+    INCLUSIVE("x13.mod.mode.view.inclusive", Blocks.STONE, (il, currentState, neighberState) -> !il
             && neighberState.isAir());
 
     private final Viewer viewer;
     private final Component title;
-    private final ItemStack icon;
+    private final ItemLike icon;
 
-    ViewMode(String translation, ItemStack icon, Viewer viewer) {
+    ViewMode(String translation, ItemLike icon, Viewer viewer) {
         this.viewer = viewer;
         this.icon = icon;
         this.title = Component.translatable(translation);
@@ -36,7 +36,7 @@ public enum ViewMode implements EnumElement {
     }
 
     @Override
-    public ItemStack getIcon() {
+    public ItemLike getIcon() {
         return icon;
     }
 }

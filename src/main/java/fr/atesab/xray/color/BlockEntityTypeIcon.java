@@ -5,16 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
-public record BlockEntityTypeIcon(BlockEntityType<?> entity, ItemStack icon) {
+public record BlockEntityTypeIcon(BlockEntityType<?> entity, ItemLike icon) {
 
-    private static final Map<String, ItemStack> ICONS = new HashMap<>();
-    private static final ItemStack DEFAULT_ICON = new ItemStack(Items.PAPER);
+    private static final Map<String, ItemLike> ICONS = new HashMap<>();
+    private static final ItemLike DEFAULT_ICON = Items.PAPER;
 
     public static final BlockEntityTypeIcon FURNACE = register(BlockEntityType.FURNACE, Items.FURNACE);
     public static final BlockEntityTypeIcon CHEST = register(BlockEntityType.CHEST, Items.CHEST);
@@ -54,11 +53,7 @@ public record BlockEntityTypeIcon(BlockEntityType<?> entity, ItemStack icon) {
     public static final BlockEntityTypeIcon SCULK_SHRIEKER = register(BlockEntityType.SCULK_SHRIEKER, Items.SCULK_SHRIEKER);
 
     public static BlockEntityTypeIcon register(BlockEntityType<?> type, ItemLike icon) {
-        return register(type, new ItemStack(icon));
-    }
-
-    public static BlockEntityTypeIcon register(BlockEntityType<?> type, ItemStack icon) {
-        ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
+        Identifier id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
         if (id != null) {
             ICONS.put(id.toLanguageKey(), icon);
         }
@@ -66,13 +61,13 @@ public record BlockEntityTypeIcon(BlockEntityType<?> entity, ItemStack icon) {
         return new BlockEntityTypeIcon(type, icon);
     }
 
-    public static ItemStack getIcon(BlockEntityType<?> type) {
-        ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
+    public static ItemLike getIcon(BlockEntityType<?> type) {
+    	Identifier id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
         if (id == null) {
             return DEFAULT_ICON;
         }
 
-        ItemStack icon = ICONS.get(id.toLanguageKey());
+        ItemLike icon = ICONS.get(id.toLanguageKey());
 
         if (icon != null) {
             return icon;

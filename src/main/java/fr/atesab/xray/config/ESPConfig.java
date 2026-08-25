@@ -10,41 +10,42 @@ import fr.atesab.xray.color.EntityTypeIcon;
 import fr.atesab.xray.color.EnumElement;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class ESPConfig extends AbstractModeConfig implements Cloneable {
     public enum Template implements EnumElement {
-        BLANK("x13.mod.template.blank", new ItemStack(Items.PAPER), new ESPConfig()),
-        PLAYER("x13.mod.esp.template.player", new ItemStack(Items.PLAYER_HEAD),
+        BLANK("x13.mod.template.blank", Items.PAPER, new ESPConfig()),
+        PLAYER("x13.mod.esp.template.player", Items.PLAYER_HEAD,
                 new ESPConfig(0, 0, "Player", EntityType.PLAYER)
         ),
-        WITHER("x13.mod.esp.template.wither", new ItemStack(Items.WITHER_SKELETON_SKULL),
+        WITHER("x13.mod.esp.template.wither", Items.WITHER_SKELETON_SKULL,
                 new ESPConfig(0, 0, "Wither", EntityType.WITHER, EntityType.WITHER_SKELETON)
         ),
-        AGGRESIVE("x13.mod.esp.template.aggresive", new ItemStack(Items.CREEPER_HEAD), () ->
+        AGGRESIVE("x13.mod.esp.template.aggresive", Items.CREEPER_HEAD, () ->
                 new ESPConfig(EntityTypeIcon.getEntityOfType(MobCategory.MONSTER), Collections.emptyList())
         ),
-        PASSIVE("x13.mod.esp.template.passive", new ItemStack(Items.POPPY), () ->
+        PASSIVE("x13.mod.esp.template.passive", Items.POPPY, () ->
                 new ESPConfig(EntityTypeIcon.getEntityOfType(MobCategory.CREATURE), Collections.emptyList())
         ),
-        CHEST("x13.mod.esp.template.chest", new ItemStack(Items.CHEST), () ->
-                new ESPConfig(BlockEntityType.CHEST, BlockEntityType.ENDER_CHEST, BlockEntityType.HOPPER, BlockEntityType.TRAPPED_CHEST, BlockEntityType.MOB_SPAWNER)
+        CHEST("x13.mod.esp.template.chest", Items.CHEST, () ->
+                new ESPConfig(BlockEntityType.CHEST, BlockEntityType.ENDER_CHEST, BlockEntityType.HOPPER, BlockEntityType.TRAPPED_CHEST, BlockEntityType.MOB_SPAWNER,
+                		BlockEntityType.BARREL, BlockEntityType.TRIAL_SPAWNER, BlockEntityType.DECORATED_POT, BlockEntityType.VAULT)
         );
 
         private final Component title;
-        private final ItemStack icon;
+        private final ItemLike icon;
         private final Supplier<ESPConfig> cfg;
 
-        Template(String translation, ItemStack icon, ESPConfig cfg) {
+        Template(String translation, ItemLike icon, ESPConfig cfg) {
             this(translation, icon, () -> cfg);
         }
 
-        Template(String translation, ItemStack icon, Supplier<ESPConfig> cfg) {
+        Template(String translation, ItemLike icon, Supplier<ESPConfig> cfg) {
             this.title = Component.translatable(translation);
             this.icon = icon;
             this.cfg = cfg;
@@ -56,7 +57,7 @@ public class ESPConfig extends AbstractModeConfig implements Cloneable {
         }
 
         @Override
-        public ItemStack getIcon() {
+        public ItemLike getIcon() {
             return icon;
         }
 
@@ -159,7 +160,7 @@ public class ESPConfig extends AbstractModeConfig implements Cloneable {
     public boolean shouldTag(EntityType<?> type) {
         if (!isEnabled())
             return false;
-        ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
+        Identifier id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
         if (id == null) {
             return false;
         }
@@ -169,7 +170,7 @@ public class ESPConfig extends AbstractModeConfig implements Cloneable {
     public boolean shouldTag(BlockEntityType<?> type) {
         if (!isEnabled())
             return false;
-        ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
+        Identifier id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
         if (id == null) {
             return false;
         }

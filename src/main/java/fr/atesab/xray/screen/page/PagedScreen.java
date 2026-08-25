@@ -8,13 +8,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.Matrix3x2fStack;
 
 import fr.atesab.xray.screen.XrayScreen;
 import fr.atesab.xray.utils.TagOnWriteList;
 import fr.atesab.xray.widget.XrayButton;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
 public abstract class PagedScreen<E> extends XrayScreen {
@@ -237,13 +240,13 @@ public abstract class PagedScreen<E> extends XrayScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics, mouseX, mouseY, delta);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+    	//extractBackground(graphics, mouseX, mouseY, delta);
         applyToAllElement((element, deltaY) -> {
-            PoseStack stack = graphics.pose();
-            stack.translate(0, deltaY, 0);
-            element.render(graphics, mouseX, mouseY - deltaY, delta);
-            stack.translate(0, -deltaY, 0);
+            Matrix3x2fStack stack = graphics.pose();
+            stack.translate(0, deltaY);
+            element.extractRenderState(graphics, mouseX, mouseY - deltaY, delta);
+            stack.translate(0, -deltaY);
             return false;
         });
         graphics.fill(0, 0, width, 22, 0xff444444);
@@ -251,8 +254,8 @@ public abstract class PagedScreen<E> extends XrayScreen {
         String title = getTitle().getString();
         if (maxPage != 1)
             title += " (" + (page + 1) + "/" + maxPage + ")";
-        graphics.drawCenteredString(font, title, width / 2, 11 - font.lineHeight / 2, 0xffffffff);
-        super.render(graphics, mouseX, mouseY, delta);
+        graphics.centeredText(font, title, width / 2, 11 - font.lineHeight / 2, 0xffffffff);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
     }
 
     @Override
@@ -265,36 +268,34 @@ public abstract class PagedScreen<E> extends XrayScreen {
     }
 
     @Override
-    public boolean charTyped(char key, int modifier) {
-        applyToAllElement((element, deltaY) -> element.charTyped(key, modifier));
-        return super.charTyped(key, modifier);
+    public boolean charTyped(CharacterEvent event) {
+        applyToAllElement((element, deltaY) -> element.charTyped(event));
+        return super.charTyped(event);
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-        applyToAllElement((element, deltaY) -> element.keyReleased(keyCode, scanCode, modifiers));
-        return super.keyReleased(keyCode, scanCode, modifiers);
+    public boolean keyReleased(KeyEvent event) {
+        applyToAllElement((element, deltaY) -> element.keyReleased(event));
+        return super.keyReleased(event);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        applyToAllElement((element, deltaY) -> element.mouseClicked(mouseX, mouseY - deltaY, button));
-        return super.mouseClicked(mouseX, mouseY, button);
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        applyToAllElement((element, deltaY) -> element.mouseClicked(new MouseButtonEvent(event.x(), event.y() - deltaY, event.buttonInfo()), doubleClick));
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseDragged(double startMouseX, double startMouseY, int button, double endMouseX,
-                                double endMouseY) {
+    public boolean mouseDragged(MouseButtonEvent event, double endMouseX, double endMouseY) {
         applyToAllElement(
-                (element, deltaY) -> element.mouseDragged(startMouseX, startMouseY - deltaY, button, endMouseX,
-                        endMouseY - deltaY));
-        return super.mouseDragged(startMouseX, startMouseY, button, endMouseX, endMouseY);
+                (element, deltaY) -> element.mouseDragged(new MouseButtonEvent(event.x(), event.y() - deltaY, event.buttonInfo()), endMouseX, endMouseY - deltaY));
+        return super.mouseDragged(event, endMouseX, endMouseY);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        applyToAllElement((element, deltaY) -> element.mouseReleased(mouseX, mouseY - deltaY, button));
-        return super.mouseReleased(mouseX, mouseY, button);
+    public boolean mouseReleased(MouseButtonEvent event) {
+        applyToAllElement((element, deltaY) -> element.mouseReleased(new MouseButtonEvent(event.x(), event.y() - deltaY, event.buttonInfo())));
+        return super.mouseReleased(event);
     }
 
     @Override
@@ -327,8 +328,8 @@ public abstract class PagedScreen<E> extends XrayScreen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        applyToAllElement((element, deltaY) -> element.keyPressed(keyCode, scanCode, modifiers));
+    public boolean keyPressed(KeyEvent event) {
+        applyToAllElement((element, deltaY) -> element.keyPressed(event));
         return false;
     }
 

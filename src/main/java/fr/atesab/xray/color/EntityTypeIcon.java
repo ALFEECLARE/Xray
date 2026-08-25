@@ -3,20 +3,22 @@ package fr.atesab.xray.color;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
-public record EntityTypeIcon(EntityType<?> entity, ItemStack icon) {
+public record EntityTypeIcon(EntityType<?> entity, ItemLike icon) {
 
-    private static final Map<String, ItemStack> ICONS = new HashMap<>();
-    private static final ItemStack DEFAULT_ICON = new ItemStack(Items.PAPER);
+    private static final Map<String, ItemLike> ICONS = new HashMap<>();
+    private static final ItemLike DEFAULT_ICON = Items.PAPER;
 
     public static final EntityTypeIcon CREEPER = register(EntityType.CREEPER, Items.CREEPER_HEAD);
     public static final EntityTypeIcon PLAYER = register(EntityType.PLAYER, Items.PLAYER_HEAD);
@@ -61,23 +63,19 @@ public record EntityTypeIcon(EntityType<?> entity, ItemStack icon) {
     public static final EntityTypeIcon WOLF = register(EntityType.WOLF, Items.BONE);
 
     public static EntityTypeIcon register(EntityType<?> type, ItemLike icon) {
-        return register(type, new ItemStack(icon));
-    }
-
-    public static EntityTypeIcon register(EntityType<?> type, ItemStack icon) {
         ICONS.put(type.getDescriptionId(), icon);
         return new EntityTypeIcon(type, icon);
     }
 
-    public static ItemStack getIcon(EntityType<?> type) {
-        ItemStack icon = ICONS.get(type.getDescriptionId());
+    public static ItemLike getIcon(EntityType<?> type) {
+    	ItemLike icon = ICONS.get(type.getDescriptionId());
         if (icon != null)
             return icon;
 
-        SpawnEggItem egg = SpawnEggItem.byId(type);
+        Optional<Holder<Item>> eggHolder = SpawnEggItem.byId(type);
 
-        if (egg != null)
-            return new ItemStack(egg);
+        if (eggHolder.isPresent())
+            return eggHolder.get().value();
 
         return DEFAULT_ICON;
     }

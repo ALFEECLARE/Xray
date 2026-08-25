@@ -1,16 +1,13 @@
 package fr.atesab.xray.widget;
 
-import org.joml.Matrix4fStack;
+import org.joml.Matrix3x2fStack;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import fr.atesab.xray.utils.GuiUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -29,10 +26,9 @@ public class MenuWidget extends AbstractButton {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         Minecraft client = Minecraft.getInstance();
         boolean hovered = isHoveredOrFocused();
-        int centerX = getX() + width / 2;
         int color;
         if (hovered) {
             color = 0x33ffffff;
@@ -44,29 +40,28 @@ public class MenuWidget extends AbstractButton {
 
         Component message = getMessage();
         Font font = client.font;
-        Matrix4fStack modelStack = RenderSystem.getModelViewStack();
-
-        int stackCenterX = getX() + width / 2;
-        int stackCenterY = getY() + height * 2 / 5;
-
-        modelStack.pushMatrix();
-        modelStack.translate(stackCenterX, stackCenterY, 0);
+        
+        Matrix3x2fStack modelstack = graphics.pose();
+        modelstack.pushMatrix();
         float scaleX = getWidth() * 3 / 4f / 16f;
         float scaleY = getHeight() * 3 / 4f / 16f;
-        modelStack.scale(scaleX, scaleY, 1);
-        RenderSystem.assertOnRenderThread();
-        GuiUtils.renderItemIdentity(graphics, itemStack, -8, -8);
-        modelStack.popMatrix();
-
-        PoseStack stack = graphics.pose();
-        stack.pushPose();
-        stack.translate(centerX, getY() + getHeight(), 0);
+        float stackOffsetedX = (width - 16 * scaleX) / 2;
+        float stackOffsetedY = (height - 16 * scaleY) / 2;
+        modelstack.scale(scaleX, scaleY);
+        graphics.fakeItem(itemStack, (int)((getX() + stackOffsetedX) / scaleX), (int)((getY() + stackOffsetedY) / scaleY));
+        modelstack.scale(1 / scaleX, 1 / scaleY);
+        modelstack.popMatrix();
+        
+        Matrix3x2fStack stack = graphics.pose();
+        stack.pushMatrix();
         float scale = getHeight() / 7f / font.lineHeight;
-        stack.scale(scale, scale, 1);
-        graphics.drawCenteredString(font, message, 0, -font.lineHeight, packedFGColor);
-        stack.scale(1 / scale, 1 / scale, 1);
-        stack.translate(-centerX, -getY() - getHeight(), 0);
-        stack.popPose();
+        int offsetX = (int)((width - font.width(message.getVisualOrderText())) / scale / 2);
+        stack.translate(getX() + offsetX, getY() + getHeight());
+        stack.scale(scale, scale);
+        graphics.text(font, message, 0, -font.lineHeight, packedFGColor);
+        stack.scale(1 / scale, 1 / scale);
+        stack.translate(-getY() - offsetX, -getY() - getHeight());
+        stack.popMatrix();
     }
 
     @Override
@@ -76,7 +71,7 @@ public class MenuWidget extends AbstractButton {
 
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers input) {
         onPress.onPress();
     }
 

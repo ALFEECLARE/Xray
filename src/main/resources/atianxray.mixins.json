@@ -6,7 +6,8 @@
   "mixins": [],
   "refmap": "mixins.atianxray.refmap.json",
   "client": [
-    "MixinBlock_sodium",
+	"MixinBlock_sodium",
+	"MixinLevelSlice_sodium",
     "MixinBlock",
     "MixinClientLevel",
     "MixinLightmapTextureManager",

@@ -3,6 +3,7 @@ package fr.atesab.xray.screen.page;
 import fr.atesab.xray.widget.XrayButton;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
 public class RemovePagedButton extends XrayButton {
@@ -18,9 +19,9 @@ public class RemovePagedButton extends XrayButton {
     }
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers input) {
         parent.removeCurrent();
-        super.onPress();
+        super.onPress(input);
     }
 
 }

@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import fr.atesab.xray.widget.XrayButton;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
 public class AddPagedButton<E> extends XrayButton {
@@ -22,9 +23,9 @@ public class AddPagedButton<E> extends XrayButton {
     }
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers input) {
         parent.addElement(eSupplier.get());
-        super.onPress();
+        super.onPress(input);
     }
 
 }

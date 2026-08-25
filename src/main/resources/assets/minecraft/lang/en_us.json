@@ -5,5 +5,8 @@
 	"block.minecraft.hanging_sign": "Hanging Signs",
 	"block.minecraft.mob_spawner": "Mob Spawner",
 	"block.minecraft.sign": "Signs",
-	"block.minecraft.skull": "Mob Heads"
+	"block.minecraft.skull": "Mob Heads",
+	"block.minecraft.shelf": "Shelf",
+	"block.minecraft.ominousvault": "Ominous Vault"
 }
+

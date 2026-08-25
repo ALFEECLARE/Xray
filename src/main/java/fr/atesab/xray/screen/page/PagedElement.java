@@ -3,9 +3,12 @@ package fr.atesab.xray.screen.page;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 
 public class PagedElement<E> implements GuiEventListener {
     PagedScreen<E> parentScreen;
@@ -49,50 +52,49 @@ public class PagedElement<E> implements GuiEventListener {
     public void init() {
     }
 
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        widgets.forEach(w -> w.render(graphics, mouseX, mouseY, delta));
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+        widgets.forEach(w -> w.extractRenderState(graphics, mouseX, mouseY, delta));
     }
 
     public void tick() {
     }
 
     @Override
-    public boolean charTyped(char key, int modifier) {
+    public boolean charTyped(CharacterEvent event) {
         for (GuiEventListener w : guiListeners)
-            if (w.charTyped(key, modifier))
+            if (w.charTyped(event))
                 return true;
         return false;
     }
 
     @Override
-    public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+    public boolean keyReleased(KeyEvent event) {
         for (GuiEventListener w : guiListeners)
-            if (w.keyReleased(keyCode, scanCode, modifiers))
+            if (w.keyReleased(event))
                 return true;
         return false;
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         for (GuiEventListener w : guiListeners)
-            if (w.mouseClicked(mouseX, mouseY, button))
+            if (w.mouseClicked(event, doubleClick))
                 return true;
         return false;
     }
 
     @Override
-    public boolean mouseDragged(double startMouseX, double startMouseY, int button, double endMouseX,
-                                double endMouseY) {
+    public boolean mouseDragged(MouseButtonEvent event, double endMouseX, double endMouseY) {
         for (GuiEventListener w : guiListeners)
-            if (w.mouseDragged(startMouseX, startMouseY, button, endMouseX, endMouseY))
+            if (w.mouseDragged(event, endMouseX, endMouseY))
                 return true;
         return false;
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
         for (GuiEventListener w : guiListeners)
-            if (w.mouseReleased(mouseX, mouseY, button))
+            if (w.mouseReleased(event))
                 return true;
         return false;
     }
@@ -129,9 +131,9 @@ public class PagedElement<E> implements GuiEventListener {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
         for (GuiEventListener w : guiListeners)
-            if (w.keyPressed(keyCode, scanCode, modifiers))
+            if (w.keyPressed(event))
                 return true;
         return false;
     }

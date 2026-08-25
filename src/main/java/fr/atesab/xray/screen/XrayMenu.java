@@ -4,14 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.Matrix3x2fStack;
 
 import fr.atesab.xray.XrayMain;
 import fr.atesab.xray.config.BlockConfig;
 import fr.atesab.xray.config.ESPConfig;
 import fr.atesab.xray.widget.MenuWidget;
 import fr.atesab.xray.widget.XrayButton;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -81,22 +81,20 @@ public class XrayMenu extends XrayScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics, mouseX, mouseY, delta);
-        PoseStack stack = graphics.pose();
-        stack.pushPose();
-        stack.translate(width / 2f, height / 2f - 70, 0);
-        stack.scale(4, 4, 1);
-        graphics.drawCenteredString(minecraft.font, XrayMain.MOD_NAME, 0, -minecraft.font.lineHeight, 0xffffff33);
-        stack.popPose();
-        graphics.drawCenteredString(minecraft.font, Component.translatable("x13.mod.by",
-                        Arrays.stream(XrayMain.MOD_AUTHORS).collect(Collectors.joining(
-                                ", "))),
-                width / 2, height / 2 - 60, 0xffaaaaaa);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+    	//super.extractBackground(graphics, mouseX, mouseY, delta);
+        Matrix3x2fStack stack = graphics.pose();
+        stack.pushMatrix();
+        stack.translate(width / 2f, height / 2f - 70);
+        stack.scale(4, 4);
+        graphics.centeredText(minecraft.font, XrayMain.MOD_NAME, 0, -minecraft.font.lineHeight, 0xffffff33);
+        stack.popMatrix();
+        Component component =  Component.translatable("x13.mod.by", Arrays.stream(XrayMain.MOD_AUTHORS).collect(Collectors.joining(", ")));
+        graphics.text(minecraft.font, component, (width - font.width(component.getVisualOrderText())) / 2, height / 2 - 60, 0xffaaaaaa);
         int size = 400 / 5;
         graphics.fill(0, height / 2 - size / 2, width / 2 - 200, height / 2 + size / 2, 0x22ffffff);
         graphics.fill(width / 2 + 200, height / 2 - size / 2, width, height / 2 + size / 2, 0x22ffffff);
 
-        super.render(graphics, mouseX, mouseY, delta);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
     }
 }

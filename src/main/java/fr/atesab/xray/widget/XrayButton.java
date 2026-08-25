@@ -2,7 +2,7 @@ package fr.atesab.xray.widget;
 
 import fr.atesab.xray.XrayMain;
 import fr.atesab.xray.color.Skin;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
@@ -29,10 +29,14 @@ public class XrayButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mx, int my, float delta) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mx, int my, float delta) {
         Skin skin = XrayMain.getMod().getConfig().getSkin();
+    	super.extractDefaultSprite(graphics);
+    	super.extractDefaultLabel(graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
         if (skin.renderButton(this, graphics, getX(), getY(), width, height)) {
-            super.renderWidget(graphics, mx, my, delta);
+            //super.extractWidgetRenderState(graphics, mx, my, delta);
+        	//super.extractDefaultSprite(graphics);
+        	//super.extractDefaultLabel(graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
         }
     }
 

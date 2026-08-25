@@ -7,7 +7,7 @@ import java.util.Objects;
 
 import fr.atesab.xray.utils.TagOnWriteList;
 import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class SyncedRegistryList<R> extends TagOnWriteList<String> implements Cloneable {
 
@@ -56,7 +56,7 @@ public class SyncedRegistryList<R> extends TagOnWriteList<String> implements Clo
 
     public SyncedRegistryList<R> sync() {
         objects.clear();
-        stream().map(ResourceLocation::tryParse).map(registry::getValue).filter(Objects::nonNull).forEach(objects::add);
+        stream().map(Identifier::tryParse).map(registry::getValue).filter(Objects::nonNull).forEach(objects::add);
         removeUpdated();
         synced = true;
         return this;

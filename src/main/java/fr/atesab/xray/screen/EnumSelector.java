@@ -11,6 +11,7 @@ import fr.atesab.xray.screen.page.PagedScreen;
 import fr.atesab.xray.widget.LongItemWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 public abstract class EnumSelector<E extends EnumElement> extends PagedScreen<E> {
 
@@ -25,7 +26,7 @@ public abstract class EnumSelector<E extends EnumElement> extends PagedScreen<E>
 
         @Override
         public void init() {
-            btn = addSubWidget(new LongItemWidget(width / 2 - 100, 0, 200, 20, e.getTitle(), e.getIcon(), () -> {
+            btn = addSubWidget(new LongItemWidget(width / 2 - 100, 0, 200, 20, e.getTitle(), new ItemStack(e.getIcon()), () -> {
                 select(e);
                 minecraft.setScreen(parent);
             }));

@@ -3,15 +3,11 @@ package fr.atesab.xray.widget;
 import java.util.List;
 import java.util.stream.Stream;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import fr.atesab.xray.config.ESPConfig;
 import fr.atesab.xray.screen.XrayEntityMenu;
 import fr.atesab.xray.utils.GuiUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -43,11 +39,11 @@ public class EntityConfigWidget extends XrayButton {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         int fit = (width - 2) / 17;
 
-        Stream<ItemStack> stacks = Stream.concat(cfg.getEntities().getIcons(), cfg.getBlockEntities().getIcons());
-
+        Stream<ItemStack> stacks = Stream.concat(cfg.getEntities().getIcons(), cfg.getBlockEntities().getIcons()).map(item -> new ItemStack(item));
+        
         List<ItemStack> view = stacks.limit(fit).toList();
         Minecraft client = Minecraft.getInstance();
 

@@ -8,9 +8,12 @@ import fr.atesab.xray.config.BlockConfig;
 import fr.atesab.xray.utils.GuiUtils;
 import fr.atesab.xray.widget.XrayButton;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -54,13 +57,13 @@ public class XrayBlockMenu extends XrayScreen {
 
         searchBar = new EditBox(font, width / 2 - sizeX / 2, pageTop + 2, sizeX, 16, Component.literal("")) {
             @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button) {
-                if (button == 1 && mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getY()
-                        && mouseY <= this.getY() + this.height) {
+            public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+                if (event.button() == 1 && event.x() >= this.getX() && event.x() <= this.getX() + this.width && event.y() >= this.getY()
+                        && event.y() <= this.getY() + this.height) {
                     setValue("");
                     return true;
                 }
-                return super.mouseClicked(mouseX, mouseY, button);
+                return super.mouseClicked(event, doubleClick);
             }
 
             @Override
@@ -70,8 +73,8 @@ public class XrayBlockMenu extends XrayScreen {
             }
 
             @Override
-            public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-                if (super.keyPressed(keyCode, scanCode, modifiers)) {
+            public boolean keyPressed(KeyEvent event) {
+                if (super.keyPressed(event)) {
                     updateSearch();
                     return true;
                 }
@@ -79,8 +82,8 @@ public class XrayBlockMenu extends XrayScreen {
             }
 
             @Override
-            public boolean charTyped(char chr, int modifiers) {
-                if (super.charTyped(chr, modifiers)) {
+            public boolean charTyped(CharacterEvent event) {
+                if (super.charTyped(event)) {
                     updateSearch();
                     return true;
                 }
@@ -139,9 +142,9 @@ public class XrayBlockMenu extends XrayScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(graphics, mouseX, mouseY, partialTick);
-        searchBar.render(graphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    	//extractBackground(graphics, mouseX, mouseY, partialTick);
+        searchBar.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
         int left = width / 2 - elementsX * 18 / 2;
         int top = height / 2 - elementsY * 18 / 2;
@@ -182,12 +185,12 @@ public class XrayBlockMenu extends XrayScreen {
         }
 
         graphics.fill(x, y, x + 18, y + 18, color);
-        graphics.drawString(font, ADD, x + (18 - font.width(ADD)) / 2, y + (18 - font.lineHeight) / 2, color);
+        graphics.text(font, ADD, x + (18 - font.width(ADD)) / 2, y + (18 - font.lineHeight) / 2, color);
 
-        super.render(graphics, mouseX, mouseY, partialTick);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
         if (hovered != null) {
-            graphics.renderTooltip(font,
+            graphics.setTooltipForNextFrame(font,
                     Arrays.asList(Component.translatable(hoveredBlock.getDescriptionId()).getVisualOrderText(),
                             REPLACE.getVisualOrderText(), DELETE.getVisualOrderText()),
                     mouseX, mouseY);
@@ -195,8 +198,8 @@ public class XrayBlockMenu extends XrayScreen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button))
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (super.mouseClicked(event, doubleClick))
             return true;
 
         int left = width / 2 - elementsX * 18 / 2;
@@ -208,8 +211,8 @@ public class XrayBlockMenu extends XrayScreen {
             Block b = view.get(i);
             int x = left + (i % elementsX) * 18;
             int y = top + (i / elementsX) * 18;
-            if (mouseX >= x && mouseX <= x + 18 && mouseY >= y && mouseY <= y + 18) {
-                if (button == 0) { // left click: replace
+            if (event.x() >= x && event.x() <= x + 18 && event.y() >= y && event.y() <= y + 18) {
+                if (event.button() == 0) { // left click: replace
                     getMinecraft().setScreen(new BlockSelector(this) {
                         @Override
                         protected void save(Block selection) {
@@ -223,7 +226,7 @@ public class XrayBlockMenu extends XrayScreen {
                     });
                     return true;
                 }
-                if (button == 1) { // right click: delete
+                if (event.button() == 1) { // right click: delete
                     config.remove(b);
                     updateSearch();
                     return true;
@@ -233,7 +236,7 @@ public class XrayBlockMenu extends XrayScreen {
         }
         int x = left + (i % elementsX) * 18;
         int y = top + (i / elementsX) * 18;
-        if (button == 0 && mouseX >= x && mouseX <= x + 18 && mouseY >= y && mouseY <= y + 18) {
+        if (event.button() == 0 && event.x() >= x && event.x() <= x + 18 && event.y() >= y && event.y() <= y + 18) {
             // add
             getMinecraft().setScreen(new BlockSelector(this) {
                 @Override

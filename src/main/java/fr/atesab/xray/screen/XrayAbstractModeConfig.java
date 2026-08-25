@@ -3,8 +3,7 @@ package fr.atesab.xray.screen;
 import fr.atesab.xray.config.AbstractModeConfig;
 import fr.atesab.xray.widget.ColorSelectorWidget;
 import fr.atesab.xray.widget.XrayButton;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -21,9 +20,9 @@ public class XrayAbstractModeConfig extends XrayScreen {
     }
 
     @Override
-    public void resize(Minecraft p_96575_, int p_96576_, int p_96577_) {
+    public void resize(int width, int height) {
         String s = nameBox.getValue();
-        super.resize(p_96575_, p_96576_, p_96577_);
+        super.resize(width, height);
         nameBox.setValue(s);
     }
 
@@ -60,9 +59,9 @@ public class XrayAbstractModeConfig extends XrayScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics, mouseX, mouseY, delta);
-        nameBox.render(graphics, mouseX, mouseY, delta);
-        super.render(graphics, mouseX, mouseY, delta);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+    	//extractBackground(graphics, mouseX, mouseY, delta);
+        nameBox.extractRenderState(graphics, mouseX, mouseY, delta);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
     }
 }

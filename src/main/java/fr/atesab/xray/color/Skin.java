@@ -6,12 +6,12 @@ import fr.atesab.xray.widget.XrayButton;
 import fr.atesab.xray.widget.XraySlider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 public enum Skin {
     XRAY(XrayMain.MOD_NAME) {
         @Override
-        public boolean renderSlider(XraySlider widget, GuiGraphics graphics, int x, int y, int w, int h) {
+        public boolean renderSlider(XraySlider widget, GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
             int bgColor;
             if (!widget.active) {
                 bgColor = 0x99_000000;
@@ -27,12 +27,12 @@ public enum Skin {
             Minecraft minecraft = Minecraft.getInstance();
             Font font = minecraft.font;
             int color = widget.getFGColor();
-            graphics.drawCenteredString(font, widget.getMessage(), x + w / 2, y + (h - 8) / 2, color | 0xFF000000);
+            graphics.centeredText(font, widget.getMessage(), x + w / 2, y + (h - 8) / 2, color | 0xFF000000);
             return false;
         }
 
         @Override
-        public boolean renderButton(XrayButton widget, GuiGraphics graphics, int x, int y, int w, int h) {
+        public boolean renderButton(XrayButton widget, GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
             int bgColor;
 
             if (!widget.active) {
@@ -48,7 +48,7 @@ public enum Skin {
             Minecraft minecraft = Minecraft.getInstance();
             Font font = minecraft.font;
             int color = widget.getFGColor();
-            graphics.drawCenteredString(font, widget.getMessage(), x + w / 2, y + (h - 8) / 2, color | 0xFF000000);
+            graphics.centeredText(font, widget.getMessage(), x + w / 2, y + (h - 8) / 2, color | 0xFF000000);
             return false;
         }
 
@@ -64,7 +64,7 @@ public enum Skin {
         private static final int FREQUENCY = 10_000;
 
         @Override
-        public boolean renderSlider(XraySlider widget, GuiGraphics graphics, int x, int y, int w, int h) {
+        public boolean renderSlider(XraySlider widget, GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
             int bgColor;
             if (!widget.active) {
                 bgColor = 0x99_000000;
@@ -80,12 +80,12 @@ public enum Skin {
             Minecraft minecraft = Minecraft.getInstance();
             Font font = minecraft.font;
             int color = widget.getFGColor();
-            graphics.drawCenteredString(font, widget.getMessage(), x + w / 2, y + (h - 8) / 2, color | 0xFF000000);
+            graphics.centeredText(font, widget.getMessage(), x + w / 2, y + (h - 8) / 2, color | 0xFF000000);
             return false;
         }
 
         @Override
-        public boolean renderButton(XrayButton widget, GuiGraphics graphics, int x, int y, int w, int h) {
+        public boolean renderButton(XrayButton widget, GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
             int bgColor;
 
             if (!widget.active) {
@@ -101,7 +101,7 @@ public enum Skin {
             Minecraft minecraft = Minecraft.getInstance();
             Font font = minecraft.font;
             int color = widget.getFGColor();
-            graphics.drawCenteredString(font, widget.getMessage(), x + w / 2, y + (h - 8) / 2, color | 0xFF000000);
+            graphics.centeredText(font, widget.getMessage(), x + w / 2, y + (h - 8) / 2, color | 0xFF000000);
             return false;
         }
 
@@ -122,11 +122,11 @@ public enum Skin {
         return title;
     }
 
-    public boolean renderSlider(XraySlider widget, GuiGraphics graphics, int x, int y, int w, int h) {
+    public boolean renderSlider(XraySlider widget, GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
         return true;
     }
 
-    public boolean renderButton(XrayButton widget, GuiGraphics graphics, int x, int y, int w, int h) {
+    public boolean renderButton(XrayButton widget, GuiGraphicsExtractor graphics, int x, int y, int w, int h) {
         return true;
     }
 

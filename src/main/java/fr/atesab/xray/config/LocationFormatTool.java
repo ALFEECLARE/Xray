@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
@@ -18,7 +19,6 @@ import fr.atesab.xray.color.EnumElement;
 import fr.atesab.xray.utils.GuiUtils;
 import fr.atesab.xray.utils.LocationUtils;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -27,8 +27,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.LightLayer;
@@ -63,26 +64,26 @@ public class LocationFormatTool implements EnumElement {
     public static final LocationFormatTool PLAYER_LOCATION_Z = register("x13.mod.location.opt.z", Items.BOOK, "z",
             (mc, player, world) -> XrayMain.significantNumbers(player.position().z));
     public static final LocationFormatTool PLAYER_LOCATION_FLOOR_X = register("x13.mod.location.opt.fx", Items.BOOK, "fx",
-            (mc, player, world) -> String.valueOf((int) player.position().x));
+            (mc, player, world) -> String.valueOf(Mth.floor(player.position().x)));
     public static final LocationFormatTool PLAYER_LOCATION_FLOOR_Y = register("x13.mod.location.opt.fy", Items.BOOK, "fy",
-            (mc, player, world) -> String.valueOf((int) player.position().y));
+            (mc, player, world) -> String.valueOf(Mth.floor(player.position().y)));
     public static final LocationFormatTool PLAYER_LOCATION_FLOOR_Z = register("x13.mod.location.opt.fz", Items.BOOK, "fz",
-            (mc, player, world) -> String.valueOf((int) player.position().z));
+            (mc, player, world) -> String.valueOf(Mth.floor(player.position().z)));
     public static final LocationFormatTool PLAYER_HORIZONTAL_DEGREE = register("x13.mod.location.opt.horizontalDegree", Items.RECOVERY_COMPASS, "Hdegree",
             (mc, player, world) -> String.valueOf(Math.floorMod((int) player.getYRot() + 180, 360)));
     public static final LocationFormatTool PLAYER_VERTICAL_DEGREE = register("x13.mod.location.opt.verticalDegree", Items.RECOVERY_COMPASS, "Vdegree",
             (mc, player, world) -> String.valueOf((int) (-player.getXRot())));
-    public static final LocationFormatTool PLAYER_NAME = register("x13.mod.location.opt.name", Items.NAME_TAG, "name", (mc, player, world) -> player.getGameProfile().getName());
+    public static final LocationFormatTool PLAYER_NAME = register("x13.mod.location.opt.name", Items.NAME_TAG, "name", (mc, player, world) -> player.getGameProfile().name());
     public static final LocationFormatTool FPS = register("x13.mod.location.opt.fps", Items.ITEM_FRAME, "fps", (mc, player, world) -> ""+mc.getFps());
-    public static final LocationFormatTool FPS_DEBUG = register("x13.mod.location.opt.fps.debug", Items.ITEM_FRAME, "dfps", (mc, player, world) -> mc.fpsString);
+    public static final LocationFormatTool FPS_DEBUG = register("x13.mod.location.opt.fps.debug", Items.ITEM_FRAME, "dfps", (mc, player, world) -> getVanillaStyleFPSText(mc,mc.getFps()));
     public static final LocationFormatTool BIOME = register("x13.mod.location.opt.biome", Items.OAK_LOG, "bio",
-    		(mc, player, world) -> world.getBiome(player.blockPosition()).unwrapKey().get().location().getPath());
+    		(mc, player, world) -> world.getBiome(player.blockPosition()).unwrapKey().get().identifier().getPath());
     public static final LocationFormatTool BIOME_TRANSLATE = register("x13.mod.location.opt.biomeTranslate", Items.STRIPPED_OAK_LOG, "biotranslate",
-    		(mc, player, world) -> Component.translatable(Util.makeDescriptionId("biome", world.getBiome(player.blockPosition()).unwrapKey().get().location())).getString());
+    		(mc, player, world) -> Component.translatable(Util.makeDescriptionId("biome", world.getBiome(player.blockPosition()).unwrapKey().get().identifier())).getString());
     public static final LocationFormatTool PLAYER_CHUNK_X = register("x13.mod.location.opt.chunkX", Items.BOOK, "cx",
-            (mc, player, world) -> String.valueOf(player.chunkPosition().x));
+            (mc, player, world) -> String.valueOf(player.chunkPosition().x()));
     public static final LocationFormatTool PLAYER_CHUNK_Z = register("x13.mod.location.opt.chunkZ", Items.BOOK, "cz",
-    		(mc, player, world) -> String.valueOf(player.chunkPosition().z));
+    		(mc, player, world) -> String.valueOf(player.chunkPosition().z()));
     public static final LocationFormatTool BLOCK_LIGHT = register("x13.mod.location.opt.blockLight", Items.TORCH, "blocklight",
     		(mc, player, world) -> String.valueOf(world.getBrightness(LightLayer.BLOCK,player.blockPosition())));
     public static final LocationFormatTool SKY_LIGHT = register("x13.mod.location.opt.skyLight", Items.ELYTRA, "skylight",
@@ -90,14 +91,17 @@ public class LocationFormatTool implements EnumElement {
     public static final LocationFormatTool LOOKING_BLOCK_LIGHT = register("x13.mod.location.opt.lookingBlockLight", Items.REDSTONE_TORCH, "lookinglight",
     		(mc, player, world) -> String.valueOf(world.getBrightness(LightLayer.BLOCK, LocationUtils.getLookingFaceBlockPos(mc, player))));
     public static final LocationFormatTool LOOKINGBLOCK = register("x13.mod.location.opt.lookingBlock", Items.DIAMOND_ORE, "lookingblock",
-    		(mc, player, world) -> BuiltInRegistries.BLOCK.getKey(world.getBlockState(LocationUtils.getLookingBlockPos(mc)).getBlock()).getPath());
+    		(mc, player, world) -> LocationUtils.getBlockName(world, LocationUtils.getLookingBlockPos(mc)));
     public static final LocationFormatTool LOOKINGBLOCK_TRANSLATE = register("x13.mod.location.opt.lookingTranslate", Items.DIAMOND_ORE, "lookingtranslate",
-    		(mc, player, world) -> I18n.get(world.getBlockState(LocationUtils.getLookingBlockPos(mc))
-                    .getBlock().getDescriptionId()));
+    		(mc, player, world) -> LocationUtils.getTranslatedBlockName(world, LocationUtils.getLookingBlockPos(mc)));
     public static final LocationFormatTool LOOKINGBLOCK_REQUESTEDTOOL = register("x13.mod.location.opt.lookingRequestedTool", Items.DIAMOND_PICKAXE, "lookingreqtool",
     		(mc, player, world) -> LocationUtils.getCorrectToolText(world.getBlockState(LocationUtils.getLookingBlockPos(mc))));
     public static final LocationFormatTool LOOKINGBLOCK_DESTROYPROGRESS = register("x13.mod.location.opt.lookingDestoryProgress", Items.DIAMOND_PICKAXE, "lookingdestroyprog",
     		(mc, player, world) -> String.valueOf((int)(mc.gameMode.destroyProgress * 100)) + "%");
+    public static final LocationFormatTool LOOKINGBLOCK_CROPGROWLEVEL = register("x13.mod.location.opt.lookingGrowthLevel", Items.WHEAT_SEEDS, "lookinggrowthlevel",
+    		(mc, player, world) -> LocationUtils.getCropBlockGrowthlevelText(world, LocationUtils.getLookingBlockPos(mc), false));
+    public static final LocationFormatTool LOOKINGBLOCK_CROPMAXLEVEL = register("x13.mod.location.opt.lookingMaxLevel", Items.WHEAT, "lookingmaxlevel",
+    		(mc, player, world) -> LocationUtils.getCropBlockGrowthlevelText(world, LocationUtils.getLookingBlockPos(mc), true));
     public static final LocationFormatTool FACING = register("x13.mod.location.opt.facing", Items.COMPASS, "face",
     		(mc, player, world) -> player.getDirection().getName());
     public static final LocationFormatTool DAYS_COUNT = register("x13.mod.location.opt.daysCount", Items.CLOCK, "d",
@@ -257,7 +261,7 @@ public class LocationFormatTool implements EnumElement {
 
     private final String regex;
     private final ToolFunction action;
-    private final ItemStack icon;
+    private final ItemLike icon;
     private final Component title;
 
     private LocationFormatTool(String translation, ItemLike icon, String txt, ToolFunction action) {
@@ -266,7 +270,7 @@ public class LocationFormatTool implements EnumElement {
         }
         this.regex = txt;
         this.action = action;
-        this.icon = new ItemStack(icon);
+        this.icon = icon;
         this.title = Component.translatable(translation);
     }
 
@@ -292,7 +296,7 @@ public class LocationFormatTool implements EnumElement {
     }
 
     @Override
-    public ItemStack getIcon() {
+    public ItemLike getIcon() {
         return icon;
     }
 
@@ -495,9 +499,9 @@ public class LocationFormatTool implements EnumElement {
     }
 
     private static void updateTimeField(Minecraft client, LocalPlayer player, ClientLevel world) {
-    	if (currentDayTime == world.getDayTime())
+    	if (currentDayTime == client.level.getOverworldClockTime())
     		return;
-    	currentDayTime = world.getDayTime();
+    	currentDayTime = client.level.getOverworldClockTime();
     	long fixedDayTime = currentDayTime + 6000;
     	currentDays = Math.floorDiv(fixedDayTime, 24000);
     	long fixedTime = Math.floorMod(fixedDayTime, 24000);
@@ -516,5 +520,10 @@ public class LocationFormatTool implements EnumElement {
 
     private static void updateHandDataField(Minecraft client, LocalPlayer player, ClientLevel world) {
     	
+    }
+    
+    private static String getVanillaStyleFPSText(Minecraft mc, int fps) {
+    	int framerateLimit = mc.getFramerateLimitTracker().getFramerateLimit();
+        return String.format(Locale.ROOT, "%d fps T: %s%s", fps, framerateLimit == 260 ? "inf" : framerateLimit, mc.options.enableVsync().get() ? " vsync" : "");
     }
 }

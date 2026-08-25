@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import fr.atesab.xray.color.BlockEntityTypeIcon;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class SyncedBlockEntityTypeList extends SyncedRegistryList<BlockEntityType<?>> {
@@ -26,7 +26,7 @@ public class SyncedBlockEntityTypeList extends SyncedRegistryList<BlockEntityTyp
         super(objects, BuiltInRegistries.BLOCK_ENTITY_TYPE);
     }
 
-    public Stream<ItemStack> getIcons() {
+    public Stream<ItemLike> getIcons() {
         return getObjects().stream().map(BlockEntityTypeIcon::getIcon);
     }
 

@@ -1,14 +1,14 @@
 package fr.atesab.xray.color;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fr.atesab.xray.config.LocationConfig;
 import fr.atesab.xray.utils.GuiUtils;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Text buffer to write a hud
@@ -47,7 +47,7 @@ public class TextHudBuffer {
      * @param cfg          location config
      * @param render       text renderer
      */
-    public void draw(GuiGraphics graphics, int screenWidth, int screenHeight, LocationConfig cfg, Font render) {
+    public void draw(GuiGraphicsExtractor graphics, int screenWidth, int screenHeight, LocationConfig cfg, Font render) {
         if (lines.isEmpty()) {
             return; // ignore
         }

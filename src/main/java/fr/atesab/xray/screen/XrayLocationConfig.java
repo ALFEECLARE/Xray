@@ -6,8 +6,7 @@ import fr.atesab.xray.config.LocationFormatTool;
 import fr.atesab.xray.utils.GuiUtils;
 import fr.atesab.xray.utils.XrayUtils;
 import fr.atesab.xray.widget.XrayButton;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
@@ -94,9 +93,9 @@ public class XrayLocationConfig extends XrayScreen {
     }
 
     @Override
-    public void resize(Minecraft client, int w, int h) {
+    public void resize(int w, int h) {
         String s = format.getValue();
-        super.resize(client, w, h);
+        super.resize(w, h);
         format.setValue(s);
     }
 
@@ -106,13 +105,13 @@ public class XrayLocationConfig extends XrayScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics, mouseX, mouseY, delta);
-        graphics.drawCenteredString(font, Component.translatable("x13.mod.location"), width / 2,
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+    	//extractBackground(graphics, mouseX, mouseY, delta);
+        graphics.text(font, Component.translatable("x13.mod.location"), width / 2,
                 height / 2 - 52 - font.lineHeight, 0xffffffff);
         GuiUtils.drawRightString(graphics, font, I18n.get("x13.mod.location.format") + ": ", format, 0xffffffff);
-        format.render(graphics, mouseX, mouseY, delta);
-        super.render(graphics, mouseX, mouseY, delta);
+        format.extractRenderState(graphics, mouseX, mouseY, delta);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
     }
 
     protected void save() {

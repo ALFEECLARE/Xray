@@ -2,15 +2,11 @@ package fr.atesab.xray.widget;
 
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import fr.atesab.xray.screen.XrayBlockMenu;
 import fr.atesab.xray.config.BlockConfig;
+import fr.atesab.xray.screen.XrayBlockMenu;
 import fr.atesab.xray.utils.GuiUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +39,7 @@ public class BlockConfigWidget extends XrayButton {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         int fit = (width - 2) / 17;
 
         List<Block> blocks = cfg.getBlocks().getObjects();

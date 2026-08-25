@@ -10,11 +10,11 @@ import fr.atesab.xray.widget.LongItemWidget;
 import fr.atesab.xray.widget.XrayButton;
 import fr.atesab.xray.widget.XraySlider;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -113,10 +113,10 @@ public class XrayConfigMenu extends XrayScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        renderBackground(graphics, mouseX, mouseY, delta);
-        graphics.drawCenteredString(font, title, width / 2,
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
+    	//extractBackground(graphics, mouseX, mouseY, delta);
+        graphics.text(font, title, width / 2,
                 height / 2 - 52 - font.lineHeight, 0xffffffff);
-        super.render(graphics, mouseX, mouseY, delta);
+        super.extractRenderState(graphics, mouseX, mouseY, delta);
     }
 }

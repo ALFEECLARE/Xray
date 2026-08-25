@@ -3,16 +3,14 @@ package fr.atesab.xray.widget;
 import java.util.function.IntConsumer;
 import java.util.function.IntSupplier;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import fr.atesab.xray.screen.ColorSelector;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 
 public class ColorSelectorWidget extends AbstractButton {
@@ -37,7 +35,7 @@ public class ColorSelectorWidget extends AbstractButton {
     }
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         boolean hovered = isHoveredOrFocused();
         int color = getter.getAsInt() & 0xFFFFFF;
         if (hovered) {
@@ -53,11 +51,11 @@ public class ColorSelectorWidget extends AbstractButton {
 
         Component message = getMessage();
         Font font = minecraft.font;
-        graphics.drawCenteredString(font, message, x + width / 2, y + height / 2 - font.lineHeight / 2, 0xFFFFFFFF);
+        graphics.centeredText(font, message, x + width / 2, y + height / 2 - font.lineHeight / 2, 0xFFFFFFFF);
     }
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers input) {
         minecraft.setScreen(new ColorSelector(parent, setter, getter.getAsInt()));
     }
 }

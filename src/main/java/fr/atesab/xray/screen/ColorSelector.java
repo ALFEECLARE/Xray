@@ -16,17 +16,19 @@ import fr.atesab.xray.utils.GuiUtils;
 import fr.atesab.xray.utils.GuiUtils.HSLResult;
 import fr.atesab.xray.widget.XrayButton;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -48,16 +50,16 @@ public class ColorSelector extends XrayScreen {
     private static final int PICKER_S_SIZE_X = 20;
     private static final int PICKER_HL_SIZE_X = 200;
     private static boolean pickerInit = false;
-    private static final ResourceLocation PICKER_S_RESOURCE = ResourceLocation.tryBuild(XrayMain.MOD_ID, "picker_hl");
-    private static final ResourceLocation PICKER_HL_RESOURCE = ResourceLocation.tryBuild(XrayMain.MOD_ID, "picker_s");
+    private static final Identifier PICKER_S_RESOURCE = Identifier.tryBuild(XrayMain.MOD_ID, "picker_hl");
+    private static final Identifier PICKER_HL_RESOURCE = Identifier.tryBuild(XrayMain.MOD_ID, "picker_s");
     private static final DynamicTexture PICKER_IMAGE_S = new DynamicTexture(PICKER_S_RESOURCE::toString,
             new NativeImage(NativeImage.Format.RGBA, PICKER_S_SIZE_X, PICKER_SIZE_Y, false));
     private static final DynamicTexture PICKER_IMAGE_HL = new DynamicTexture(PICKER_HL_RESOURCE::toString,
             new NativeImage(NativeImage.Format.RGBA, PICKER_HL_SIZE_X, PICKER_SIZE_Y, false));
-    private static final GpuTexture PICKER_TEXTURE_S = RenderSystem.getDevice().createTexture(PICKER_S_RESOURCE.toString(),
-            TextureFormat.RGBA8, PICKER_S_SIZE_X, PICKER_SIZE_Y, 1);
-    private static final GpuTexture PICKER_TEXTURE_HL = RenderSystem.getDevice().createTexture(PICKER_HL_RESOURCE.toString(),
-            TextureFormat.RGBA8, PICKER_HL_SIZE_X, PICKER_SIZE_Y, 1);
+    private static final GpuTexture PICKER_TEXTURE_S = RenderSystem.getDevice().createTexture(PICKER_S_RESOURCE.toString(), GpuTexture.USAGE_RENDER_ATTACHMENT,
+            TextureFormat.RGBA8, PICKER_S_SIZE_X, PICKER_SIZE_Y, 1, 1);
+    private static final GpuTexture PICKER_TEXTURE_HL = RenderSystem.getDevice().createTexture(PICKER_HL_RESOURCE.toString(), GpuTexture.USAGE_RENDER_ATTACHMENT,
+            TextureFormat.RGBA8, PICKER_HL_SIZE_X, PICKER_SIZE_Y, 1, 1);
     private static final ItemStack RANDOM_PICKER = new ItemStack(Items.POTION);
     private static final int RANDOM_PICKER_FREQUENCY = 3600;
 
@@ -167,17 +169,20 @@ public class ColorSelector extends XrayScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         // allow multiple color modifiers
         setPickerState(localHue, localSaturation, localLightness);
 
-        renderBackground(graphics, mouseX, mouseY, partialTicks);
+        //extractBackground(graphics, mouseX, mouseY, partialTicks);
 
         if (!advanced) {
+        	int pickerTop = 76;
+        	int pickerLeft = 180;
+        	
             // S PICKER
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, PICKER_TEXTURE_S);
-            GuiUtils.drawScaledCustomSizeModalRect(width / 2 + 180, height / 2 - 76 - getShiftY(), 0, 0, PICKER_S_SIZE_X,
+            //RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            //RenderSystem.outputColorTextureOverride = RenderSystem.getDevice().createTextureView(PICKER_TEXTURE_S);
+            GuiUtils.drawScaledCustomSizeModalRect(graphics, PICKER_S_RESOURCE, width / 2 + 180, height / 2 - 76 - getShiftY(), 0, 0, PICKER_S_SIZE_X,
                     PICKER_SIZE_Y, 20, 76 * 2, PICKER_S_SIZE_X, PICKER_SIZE_Y);
 
             // - S Index
@@ -188,9 +193,9 @@ public class ColorSelector extends XrayScreen {
                     height / 2 - 76 + saturationDelta + 1 - getShiftY(), 0xff999999);
 
             // HL Picker
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, PICKER_TEXTURE_HL);
-            GuiUtils.drawScaledCustomSizeModalRect(width / 2 - 158, height / 2 - 76 - getShiftY(), 0, 0, PICKER_HL_SIZE_X,
+            //RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            //RenderSystem.outputColorTextureOverride = RenderSystem.getDevice().createTextureView(PICKER_TEXTURE_HL);
+            GuiUtils.drawScaledCustomSizeModalRect(graphics, PICKER_HL_RESOURCE, width / 2 - 158, height / 2 - 76 - getShiftY(), 0, 0, PICKER_HL_SIZE_X,
                     PICKER_SIZE_Y, 158 + 176, 76 * 2, PICKER_HL_SIZE_X, PICKER_SIZE_Y);
 
             // - HL Index
@@ -204,7 +209,7 @@ public class ColorSelector extends XrayScreen {
             GuiUtils.drawRect(graphics, width / 2 - 158 + hueDelta - 4, height / 2 - 76 + lightnessDelta - 1 - getShiftY(),
                     width / 2 - 158 + hueDelta - 4 + 8, height / 2 - 76 + lightnessDelta - 1 + 2 - getShiftY(), 0xff999999);
             GuiUtils.drawRect(graphics, width / 2 - 158 + hueDelta - 1, height / 2 - 76 + lightnessDelta - 4 - getShiftY(),
-                    width / 2 - 158 + hueDelta - 1 + 2, height / 2 - 76 + lightnessDelta - 4 + 8 - getShiftY(), 0xff999999);
+                    width / 2 - 158 + hueDelta - 1 + 2, height / 2 - 76 + lightnessDelta - 4 + 8 - getShiftY(), 0xff999999);	
         } else {
             GuiUtils.drawRect(graphics, width / 2 - 158, height / 2 - 76 - getShiftY(), width / 2 + 200, height / 2 + 76 - getShiftY(),
                     0x88000000);
@@ -228,14 +233,14 @@ public class ColorSelector extends XrayScreen {
                     hexColor.getX(),
                     hexColor.getY() - 4 - 10, 0xffffffff, 10);
 
-            tfr.render(graphics, mouseX, mouseY, partialTicks);
-            tfg.render(graphics, mouseX, mouseY, partialTicks);
-            tfb.render(graphics, mouseX, mouseY, partialTicks);
-            tfh.render(graphics, mouseX, mouseY, partialTicks);
-            tfl.render(graphics, mouseX, mouseY, partialTicks);
-            tfs.render(graphics, mouseX, mouseY, partialTicks);
-            intColor.render(graphics, mouseX, mouseY, partialTicks);
-            hexColor.render(graphics, mouseX, mouseY, partialTicks);
+            tfr.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
+            tfg.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
+            tfb.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
+            tfh.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
+            tfl.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
+            tfs.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
+            intColor.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
+            hexColor.extractWidgetRenderState(graphics, mouseX, mouseY, partialTicks);
         }
         if ((color & 0xFF000000) == 0)
             GuiUtils.drawRect(graphics, width / 2 - 158, height / 2 - 100 - getShiftY(), width / 2 + 176, height / 2 - 80 - getShiftY(),
@@ -252,7 +257,7 @@ public class ColorSelector extends XrayScreen {
                 show = () -> GuiUtils.drawTextBox(graphics, font, mouseX, mouseY, width, height,
                         I18n.get("item.minecraft.firework_star." + color.getName()));
             }
-            GuiUtils.drawItemStack(graphics, new ItemStack(DyeItem.byColor(color)), x + (19 - 16) / 2,
+            GuiUtils.drawItemStack(graphics, new ItemStack(GuiUtils.DYE_ITEMS.get(color)), x + (19 - 16) / 2,
                     y + (19 - 16) / 2);
         }
 
@@ -281,7 +286,7 @@ public class ColorSelector extends XrayScreen {
             }
         }
 
-        super.render(graphics, mouseX, mouseY, partialTicks);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         show.run();
     }
 
@@ -344,16 +349,16 @@ public class ColorSelector extends XrayScreen {
     }
 
     @Override
-    public boolean charTyped(char key, int modifiers) {
+    public boolean charTyped(CharacterEvent event) {
         if (advanced) {
-            tfr.charTyped(key, modifiers);
-            tfg.charTyped(key, modifiers);
-            tfb.charTyped(key, modifiers);
-            tfh.charTyped(key, modifiers);
-            tfl.charTyped(key, modifiers);
-            tfs.charTyped(key, modifiers);
-            hexColor.charTyped(key, modifiers);
-            intColor.charTyped(key, modifiers);
+            tfr.charTyped(event);
+            tfg.charTyped(event);
+            tfb.charTyped(event);
+            tfh.charTyped(event);
+            tfl.charTyped(event);
+            tfs.charTyped(event);
+            hexColor.charTyped(event);
+            intColor.charTyped(event);
             if (tfr.isFocused())
                 try {
                     updateRed(tfr.getValue().isEmpty() ? 0 : Integer.parseInt(tfr.getValue()));
@@ -396,20 +401,20 @@ public class ColorSelector extends XrayScreen {
                 } catch (Exception ignored) {
                 }
         }
-        return super.charTyped(key, modifiers);
+        return super.charTyped(event);
     }
 
     @Override
-    public boolean keyPressed(int key, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
         if (advanced) {
-            tfr.keyPressed(key, scanCode, modifiers);
-            tfg.keyPressed(key, scanCode, modifiers);
-            tfb.keyPressed(key, scanCode, modifiers);
-            tfh.keyPressed(key, scanCode, modifiers);
-            tfl.keyPressed(key, scanCode, modifiers);
-            tfs.keyPressed(key, scanCode, modifiers);
-            hexColor.keyPressed(key, scanCode, modifiers);
-            intColor.keyPressed(key, scanCode, modifiers);
+            tfr.keyPressed(event);
+            tfg.keyPressed(event);
+            tfb.keyPressed(event);
+            tfh.keyPressed(event);
+            tfl.keyPressed(event);
+            tfs.keyPressed(event);
+            hexColor.keyPressed(event);
+            intColor.keyPressed(event);
             if (tfr.isFocused())
                 try {
                     updateRed(tfr.getValue().isEmpty() ? 0 : Integer.parseInt(tfr.getValue()));
@@ -460,13 +465,15 @@ public class ColorSelector extends XrayScreen {
 
                 }
         }
-        return super.keyPressed(key, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int mouseButton) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+    	int mouseX = (int) event.x();
+    	int mouseY = (int) event.y();
         if (advanced) {
-            if (mouseButton == 1) {
+            if (event.button() == 1) {
                 if (GuiUtils.isHover(tfr, (int) mouseX, (int) mouseY)) {
                     tfr.setValue("");
                     return true;
@@ -493,17 +500,17 @@ public class ColorSelector extends XrayScreen {
                     return true;
                 }
             }
-            tfr.mouseClicked(mouseX, mouseY, mouseButton);
-            tfg.mouseClicked(mouseX, mouseY, mouseButton);
-            tfb.mouseClicked(mouseX, mouseY, mouseButton);
-            tfh.mouseClicked(mouseX, mouseY, mouseButton);
-            tfl.mouseClicked(mouseX, mouseY, mouseButton);
-            tfs.mouseClicked(mouseX, mouseY, mouseButton);
-            intColor.mouseClicked(mouseX, mouseY, mouseButton);
-            hexColor.mouseClicked(mouseX, mouseY, mouseButton);
+            tfr.mouseClicked(event, doubleClick);
+            tfg.mouseClicked(event, doubleClick);
+            tfb.mouseClicked(event, doubleClick);
+            tfh.mouseClicked(event, doubleClick);
+            tfl.mouseClicked(event, doubleClick);
+            tfs.mouseClicked(event, doubleClick);
+            intColor.mouseClicked(event, doubleClick);
+            hexColor.mouseClicked(event, doubleClick);
         }
         drag = DragState.NONE;
-        if (mouseButton == 0) {
+        if (event.button() == 0) {
             if (!advanced && GuiUtils.isHover(width / 2 - 158, height / 2 - 76 - getShiftY(), 158 + 176, 76 * 2, (int) mouseX,
                     (int) mouseY)) {
                 setColor((int) mouseX, (int) mouseY, DragState.HL);
@@ -546,13 +553,13 @@ public class ColorSelector extends XrayScreen {
                 }
             }
         }
-        return super.mouseClicked(mouseX, mouseY, mouseButton);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int clickedMouseButton, double dx, double dy) {
-        setColor((int) mouseX, (int) mouseY, drag);
-        return super.mouseDragged(mouseX, mouseY, clickedMouseButton, dx, dy);
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        setColor((int) event.x(), (int) event.y(), drag);
+        return super.mouseDragged(event, dx, dy);
     }
 
     private void updateColor(int h, int s, int l) {

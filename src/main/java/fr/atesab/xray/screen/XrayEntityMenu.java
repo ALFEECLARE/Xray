@@ -11,15 +11,19 @@ import fr.atesab.xray.config.ESPConfig;
 import fr.atesab.xray.utils.GuiUtils;
 import fr.atesab.xray.widget.XrayButton;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 public class XrayEntityMenu extends XrayScreen {
@@ -32,7 +36,7 @@ public class XrayEntityMenu extends XrayScreen {
         }
 
         @Override
-        public ItemStack getIcon() {
+        public ItemLike getIcon() {
             if (type != null) {
                 return EntityTypeIcon.getIcon(type);
             } else {
@@ -49,7 +53,7 @@ public class XrayEntityMenu extends XrayScreen {
             if (type != null) {
                 return type.getDescriptionId();
             } else {
-                ResourceLocation id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockType);
+                Identifier id = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockType);
                 if (id == null) {
                     return blockType.getClass().getCanonicalName();
                 }
@@ -98,13 +102,13 @@ public class XrayEntityMenu extends XrayScreen {
         searchBar = new EditBox(font, width / 2 - sizeX / 2, pageTop + 2, sizeX, 16,
                 Component.literal("")) {
             @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button) {
-                if (button == 1 && mouseX >= this.getX() && mouseX <= this.getX() + this.width && mouseY >= this.getY()
-                        && mouseY <= this.getY() + this.height) {
+            public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+                if (event.button() == 1 && event.x() >= this.getX() && event.x() <= this.getX() + this.width && event.y() >= this.getY()
+                        && event.y() <= this.getY() + this.height) {
                     setValue("");
                     return true;
                 }
-                return super.mouseClicked(mouseX, mouseY, button);
+                return super.mouseClicked(event, doubleClick);
             }
 
             @Override
@@ -114,8 +118,8 @@ public class XrayEntityMenu extends XrayScreen {
             }
 
             @Override
-            public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-                if (super.keyPressed(keyCode, scanCode, modifiers)) {
+            public boolean keyPressed(KeyEvent event) {
+                if (super.keyPressed(event)) {
                     updateSearch();
                     return true;
                 }
@@ -123,8 +127,8 @@ public class XrayEntityMenu extends XrayScreen {
             }
 
             @Override
-            public boolean charTyped(char chr, int modifiers) {
-                if (super.charTyped(chr, modifiers)) {
+            public boolean charTyped(CharacterEvent event) {
+                if (super.charTyped(event)) {
                     updateSearch();
                     return true;
                 }
@@ -184,9 +188,9 @@ public class XrayEntityMenu extends XrayScreen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        renderBackground(graphics, mouseX, mouseY, partialTick);
-        searchBar.render(graphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+    	//extractBackground(graphics, mouseX, mouseY, partialTick);
+        searchBar.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
         int left = width / 2 - elementsX * 18 / 2;
         int top = height / 2 - elementsY * 18 / 2;
@@ -201,7 +205,7 @@ public class XrayEntityMenu extends XrayScreen {
             int y = top + (i / elementsX) * 18;
 
             int color;
-            ItemStack stack = et.getIcon();
+            ItemStack stack = new ItemStack(et.getIcon());
 
             if (hovered == null && mouseX >= x && mouseX <= x + 18 && mouseY >= y && mouseY <= y + 18) {
                 color = 0x446666ff;
@@ -227,24 +231,24 @@ public class XrayEntityMenu extends XrayScreen {
         }
 
         graphics.fill(x, y, x + 18, y + 18, color);
-        graphics.drawString(font, ADD, x + (18 - font.width(ADD)) / 2, y + (18 - font.lineHeight) / 2, color);
+        graphics.text(font, ADD, x + (18 - font.width(ADD)) / 2, y + (18 - font.lineHeight) / 2, color);
 
-        super.render(graphics, mouseX, mouseY, partialTick);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
 
         if (hovered != null) {
-            graphics.renderTooltip(font,
+            graphics.setComponentTooltipForNextFrame(font,
                     List.of(
-                            Component.translatable(hoveredBlock.text()).getVisualOrderText(),
-                            REPLACE.getVisualOrderText(),
-                            DELETE.getVisualOrderText()
+                            Component.translatable(hoveredBlock.text()),
+                            REPLACE,
+                            DELETE
                     ),
                     mouseX, mouseY);
         }
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button))
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (super.mouseClicked(event, doubleClick))
             return true;
 
         int left = width / 2 - elementsX * 18 / 2;
@@ -256,8 +260,8 @@ public class XrayEntityMenu extends XrayScreen {
             EntityUnion b = view.get(i);
             int x = left + (i % elementsX) * 18;
             int y = top + (i / elementsX) * 18;
-            if (mouseX >= x && mouseX <= x + 18 && mouseY >= y && mouseY <= y + 18) {
-                if (button == 0) { // left click: replace
+            if (event.x() >= x && event.x() <= x + 18 && event.y() >= y && event.y() <= y + 18) {
+                if (event.button() == 0) { // left click: replace
                     minecraft.setScreen(new EntitySelector(this) {
                         @Override
                         protected void select(EntityUnion selection) {
@@ -272,7 +276,7 @@ public class XrayEntityMenu extends XrayScreen {
                     });
                     return true;
                 }
-                if (button == 1) { // right click: delete
+                if (event.button() == 1) { // right click: delete
                     config.remove(b);
                     updateSearch();
                     return true;
@@ -282,7 +286,7 @@ public class XrayEntityMenu extends XrayScreen {
         }
         int x = left + (i % elementsX) * 18;
         int y = top + (i / elementsX) * 18;
-        if (button == 0 && mouseX >= x && mouseX <= x + 18 && mouseY >= y && mouseY <= y + 18) {
+        if (event.button() == 0 && event.x() >= x && event.x() <= x + 18 && event.y() >= y && event.y() <= y + 18) {
             // add
             minecraft.setScreen(new EntitySelector(this) {
                 @Override

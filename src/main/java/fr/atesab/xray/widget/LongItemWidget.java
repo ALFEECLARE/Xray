@@ -1,16 +1,13 @@
 package fr.atesab.xray.widget;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import fr.atesab.xray.utils.GuiUtils;
 import fr.atesab.xray.widget.MenuWidget.OnPress;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -37,7 +34,7 @@ public class LongItemWidget extends AbstractButton {
 
 
     @Override
-    public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+    public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
         Minecraft client = Minecraft.getInstance();
         boolean hovered = isHoveredOrFocused();
         int color;
@@ -53,12 +50,11 @@ public class LongItemWidget extends AbstractButton {
 
         Component message = getMessage();
         Font font = client.font;
-        ItemRenderer renderer = client.getItemRenderer();
 
         int deltaH = (getHeight() - 16);
 
         GuiUtils.renderItemIdentity(graphics, itemStack, x + deltaH / 2 + deltaX, y + deltaH / 2 + deltaY);
-        graphics.drawString(font, message, x + deltaH + 16 + 2, y + getHeight() / 2 - font.lineHeight / 2, packedFGColor);
+        graphics.text(font, message, x + deltaH + 16 + 2, y + getHeight() / 2 - font.lineHeight / 2, packedFGColor);
     }
 
     @Override
@@ -67,7 +63,7 @@ public class LongItemWidget extends AbstractButton {
     }
 
     @Override
-    public void onPress() {
+    public void onPress(InputWithModifiers input) {
         oPress.onPress();
     }
 }

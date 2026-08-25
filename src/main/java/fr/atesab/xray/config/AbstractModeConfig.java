@@ -10,7 +10,7 @@ import fr.atesab.xray.color.ColorSupplier;
 import fr.atesab.xray.color.IColorObject;
 import fr.atesab.xray.utils.KeyData;
 import fr.atesab.xray.utils.KeyInput;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.Minecraft;
 
 public abstract class AbstractModeConfig implements IColorObject {
     private static final AtomicInteger IDS = new AtomicInteger();
@@ -59,9 +59,10 @@ public abstract class AbstractModeConfig implements IColorObject {
     }
 
     public void onKeyInput(KeyInput input) {
-        if (key == input.key() && !((altModifier && !Screen.hasAltDown())
-                || (ctrlModifier && !Screen.hasControlDown())
-                || (shiftModifier && !Screen.hasShiftDown()))) {
+    	Minecraft client = Minecraft.getInstance();
+        if (key == input.key() && !((altModifier && !client.hasAltDown())
+                || (ctrlModifier && !client.hasControlDown())
+                || (shiftModifier && !client.hasShiftDown()))) {
             toggle();
         }
     }

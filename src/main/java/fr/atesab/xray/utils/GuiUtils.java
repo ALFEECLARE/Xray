@@ -1,28 +1,36 @@
 package fr.atesab.xray.utils;
 
+import static java.util.Map.*;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
-import org.joml.Matrix4f;
+import org.joml.Matrix3x2fStack;
 
 import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
  * Advanced creative tab <a href="https://github.com/ate47/AdvancedCreativeTab/blob/1.18-forge/src/main/java/fr/atesab/act/utils/GuiUtils.java">GuiUtils</a>
@@ -38,7 +46,25 @@ public class GuiUtils {
 
     public static final int COLOR_CONTAINER_BORDER = 0xC2C2C2;
     public static final int COLOR_CONTAINER_SLOT = 0xDADADA;
-
+    public static Map<DyeColor, Item> DYE_ITEMS = Map.ofEntries(
+    		entry(DyeColor.WHITE, Items.WHITE_DYE),
+    		entry(DyeColor.ORANGE, Items.ORANGE_DYE),
+    		entry(DyeColor.MAGENTA, Items.MAGENTA_DYE),
+    		entry(DyeColor.LIGHT_BLUE, Items.LIGHT_BLUE_DYE),
+    		entry(DyeColor.YELLOW, Items.YELLOW_DYE),
+    		entry(DyeColor.LIME, Items.LIME_DYE),
+    		entry(DyeColor.PINK, Items.PINK_DYE),
+    		entry(DyeColor.GRAY, Items.GRAY_DYE),
+    		entry(DyeColor.LIGHT_GRAY, Items.LIGHT_GRAY_DYE),
+    		entry(DyeColor.CYAN, Items.CYAN_DYE),
+    		entry(DyeColor.PURPLE, Items.PURPLE_DYE),
+    		entry(DyeColor.BLUE, Items.BLUE_DYE),
+    		entry(DyeColor.BROWN, Items.BROWN_DYE),
+    		entry(DyeColor.GREEN, Items.GREEN_DYE),
+    		entry(DyeColor.RED, Items.RED_DYE),
+    		entry(DyeColor.BLACK, Items.BLACK_DYE)
+    	);
+    		
     public static int blueToRed(int color) {
         return (color & 0xFF00FF00) | ((color & 0x000000FF) << 16) | ((color & 0x00FF0000) >> 16);
     }
@@ -200,7 +226,7 @@ public class GuiUtils {
      * @param bottom bottom location
      * @param color  the color
      */
-    public static void drawRect(GuiGraphics graphics, int left, int top, int right, int bottom, int color) {
+    public static void drawRect(GuiGraphicsExtractor graphics, int left, int top, int right, int bottom, int color) {
         graphics.fill(left, top, right, bottom, color);
     }
 
@@ -217,8 +243,8 @@ public class GuiUtils {
      * @param mouseX       the mouseX
      * @param mouseY       the mouseY
      */
-    public static void drawHoverableRect(GuiGraphics graphics, int left, int top, int right, int bottom, int color,
-            int colorHovered, int mouseX, int mouseY) {
+    public static void drawHoverableRect(GuiGraphicsExtractor graphics, int left, int top, int right, int bottom, int color,
+        int colorHovered, int mouseX, int mouseY) {
         int c = (isHover(left, top, right - left, bottom - top, mouseX, mouseY) ? colorHovered : color);
         graphics.fill(left, top, right, bottom, c);
     }
@@ -280,7 +306,7 @@ public class GuiUtils {
      * 
      * @since 2.1.1
      */
-    public static void drawItemStack(GuiGraphics graphics, ItemStack itemstack, int x, int y) {
+    public static void drawItemStack(GuiGraphicsExtractor graphics, ItemStack itemstack, int x, int y) {
         if (itemstack == null || itemstack.isEmpty())
             return;
         GlStateManager._enableDepthTest();
@@ -289,84 +315,9 @@ public class GuiUtils {
         GlStateManager._disableBlend();
     }
 
-    /**
-     * Draws a scaled, textured, tiled modal rect at z = 0. This method isn't used
-     * anywhere in vanilla code.
-     *
-     * @param x          x location
-     * @param y          y location
-     * @param u          x uv location
-     * @param v          y uv location
-     * @param uWidth     uv width
-     * @param vHeight    uv height
-     * @param width      width
-     * @param height     height
-     * @param tileWidth  tile width
-     * @param tileHeight tile height
-     */
-    public static void drawScaledCustomSizeModalRect(int x, int y, float u, float v, int uWidth, int vHeight, int width,
+    public static void drawScaledCustomSizeModalRect(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, float u, float v, int uWidth, int vHeight, int width,
             int height, float tileWidth, float tileHeight) {
-        drawScaledCustomSizeModalRect(x, y, u, v, uWidth, vHeight, width, height, tileWidth, tileHeight, 0xffffff);
-    }
-
-    /**
-     * Draws a scaled, textured, tiled modal rect at z = 0. This method isn't used
-     * anywhere in vanilla code.
-     *
-     * @param x          x location
-     * @param y          y location
-     * @param u          x uv location
-     * @param v          y uv location
-     * @param uWidth     uv width
-     * @param vHeight    uv height
-     * @param width      width
-     * @param height     height
-     * @param tileWidth  tile width
-     * @param tileHeight tile height
-     * @param color      tile color
-     */
-    public static void drawScaledCustomSizeModalRect(int x, int y, float u, float v, int uWidth, int vHeight, int width,
-            int height, float tileWidth, float tileHeight, int color) {
-        drawScaledCustomSizeModalRect(x, y, u, v, uWidth, vHeight, width, height, tileWidth, tileHeight, color, false);
-    }
-
-    /**
-     * Draws a scaled, textured, tiled modal rect at z = 0. This method isn't used
-     * anywhere in vanilla code.
-     *
-     * @param x          x location
-     * @param y          y location
-     * @param u          x uv location
-     * @param v          y uv location
-     * @param uWidth     uv width
-     * @param vHeight    uv height
-     * @param width      width
-     * @param height     height
-     * @param tileWidth  tile width
-     * @param tileHeight tile height
-     * @param color      tile color
-     * @param useAlpha   use the alpha of the color
-     */
-    public static void drawScaledCustomSizeModalRect(int x, int y, float u, float v, int uWidth, int vHeight, int width,
-            int height, float tileWidth, float tileHeight, int color, boolean useAlpha) {
-        float scaleX = 1.0F / tileWidth;
-        float scaleY = 1.0F / tileHeight;
-        int red = (color >> 16) & 0xFF;
-        int green = (color >> 8) & 0xFF;
-        int blue = color & 0xFF;
-        int alpha = useAlpha ? (color >> 24) : 0xff;
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        bufferbuilder.addVertex((float)x, (float)y + height, 0.0f)
-                .setUv(u * scaleX, (v + (float) vHeight) * scaleY).setColor(red, green, blue, alpha);
-        bufferbuilder.addVertex((float)x + width, (float)y + height, 0.0f)
-                .setUv((u + (float) uWidth) * scaleX, (v + (float) vHeight) * scaleY)
-                .setColor(red, green, blue, alpha);
-        bufferbuilder.addVertex((float)x + width, (float)y, 0.0f)
-                .setUv((u + (float) uWidth) * scaleX, v * scaleY).setColor(red, green, blue, alpha);
-        bufferbuilder.addVertex((float)x, (float)y, 0.0f).setUv(u * scaleX, v * scaleY)
-                .setColor(red, green, blue, alpha);
-        Minecraft.getInstance().levelRenderer.getVisibleSections().getFirst().uploadSectionLayer(RenderType.LINES, bufferbuilder.build());
+        graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, u, v, width, height, uWidth, vHeight, (int)tileWidth, (int)tileHeight);
     }
 
     /**
@@ -384,8 +335,8 @@ public class GuiUtils {
      * @see #drawCenterString(GuiGraphics graphics, Font, String, int, int, int, int)
      * @see #drawRightString(GuiGraphics graphics, Font, String, int, int, int, int)
      */
-    public static void drawString(GuiGraphics graphics, Font font, String text, int x, int y, int color, int height) {
-        graphics.drawString(font, text, x, y + height / 2 - font.lineHeight / 2, color);
+    public static void drawString(GuiGraphicsExtractor graphics, Font font, String text, int x, int y, int color, int height) {
+        graphics.text(font, text, x, y + height / 2 - font.lineHeight / 2, color);
     }
 
     /**
@@ -402,7 +353,7 @@ public class GuiUtils {
      * @see #drawCenterString(GuiGraphics graphics, Font, String, int, int, int, int)
      * @see #drawRightString(GuiGraphics graphics, Font, String, int, int, int, int)
      */
-    public static void drawString(GuiGraphics graphics, Font font, String text, int x, int y, int color) {
+    public static void drawString(GuiGraphicsExtractor graphics, Font font, String text, int x, int y, int color) {
         drawString(graphics, font, text, x, y, color, font.lineHeight);
     }
 
@@ -419,7 +370,7 @@ public class GuiUtils {
      * @see #drawCenterString(GuiGraphics graphics, Font, String, int, int, int, int)
      * @see #drawRightString(GuiGraphics graphics, Font, String, int, int, int)
      */
-    public static void drawCenterString(GuiGraphics graphics, Font font, String text, int x, int y, int color) {
+    public static void drawCenterString(GuiGraphicsExtractor graphics, Font font, String text, int x, int y, int color) {
         drawCenterString(graphics, font, text, x, y, color, font.lineHeight);
     }
 
@@ -437,7 +388,7 @@ public class GuiUtils {
      * @see #drawCenterString(GuiGraphics graphics, Font, String, int, int, int)
      * @see #drawString(GuiGraphics graphics, Font, String, int, int, int, int)
      */
-    public static void drawCenterString(GuiGraphics graphics, Font font, String text, int x, int y, int color, int height) {
+    public static void drawCenterString(GuiGraphicsExtractor graphics, Font font, String text, int x, int y, int color, int height) {
         drawString(graphics, font, text, x - font.width(text) / 2, y, color, height);
     }
 
@@ -456,7 +407,7 @@ public class GuiUtils {
      * @see #drawRightString(GuiGraphics graphics, Font, String, int, int, int, int)
      */
 
-    public static void drawRightString(GuiGraphics graphics, Font font, String text, int x, int y, int color) {
+    public static void drawRightString(GuiGraphicsExtractor graphics, Font font, String text, int x, int y, int color) {
         drawRightString(graphics, font, text, x, y, color, font.lineHeight);
     }
 
@@ -475,7 +426,7 @@ public class GuiUtils {
      * @see #drawString(GuiGraphics graphics, Font, String, int, int, int, int)
      * @see #drawCenterString(GuiGraphics graphics, Font, String, int, int, int, int)
      */
-    public static void drawRightString(GuiGraphics graphics, Font font, String text, int x, int y, int color, int height) {
+    public static void drawRightString(GuiGraphicsExtractor graphics, Font font, String text, int x, int y, int color, int height) {
         drawString(graphics, font, text, x - font.width(text), y, color, height);
     }
 
@@ -492,7 +443,7 @@ public class GuiUtils {
      * @see #drawRightString(GuiGraphics graphics, Font, String, int, int, int)
      * @see #drawRightString(GuiGraphics graphics, Font, String, int, int, int, int)
      */
-    public static void drawRightString(GuiGraphics graphics, Font font, String text, AbstractWidget field, int color) {
+    public static void drawRightString(GuiGraphicsExtractor graphics, Font font, String text, AbstractWidget field, int color) {
         drawRightString(graphics, font, text, field.getX(), field.getY(), color, field.getHeight());
     }
 
@@ -510,7 +461,7 @@ public class GuiUtils {
      * @since 2.0
      * @see #drawRightString(GuiGraphics graphics, Font, String, AbstractWidget, int)
      */
-    public static void drawRightString(GuiGraphics graphics,
+    public static void drawRightString(GuiGraphicsExtractor graphics,
             Font font, String text, AbstractWidget field, int color, int offsetX,
             int offsetY) {
         drawRightString(graphics, font, text, field.getX() + offsetX, field.getY() + offsetY, color, field.getHeight());
@@ -526,18 +477,18 @@ public class GuiUtils {
      * @param component text
      * @param color color
      */
-    public static void drawTextComponentScaled(GuiGraphics graphics, int x, int y, int height,
+    public static void drawTextComponentScaled(GuiGraphicsExtractor graphics, int x, int y, int height,
                                                Component component, int color) {
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
         float scaleX = (float) height / font.lineHeight;
         float scaleY = (float) height / font.lineHeight;
-        PoseStack pose = graphics.pose();
-        pose.translate(x, y, 0);
-        pose.scale(scaleX, scaleY, 1f);
-        graphics.drawString(font, component, 0, 0, color);
-        pose.scale(1 / scaleX, 1 / scaleY, 1f);
-        pose.translate(-x, -y, 0);
+        Matrix3x2fStack pose = graphics.pose();
+        pose.translate(x, y);
+        pose.scale(scaleX, scaleY);
+        graphics.text(font, component, 0, 0, color);
+        pose.scale(1 / scaleX, 1 / scaleY);
+        pose.translate(-x, -y);
     }
 
     /**
@@ -550,19 +501,19 @@ public class GuiUtils {
      * @param component text
      * @param color color
      */
-    public static void drawCenteredTextComponentScaled(GuiGraphics graphics, int x, int y, int height,
+    public static void drawCenteredTextComponentScaled(GuiGraphicsExtractor graphics, int x, int y, int height,
                                                        Component component, int color) {
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
         float scaleX = (float) height / font.lineHeight;
         float scaleY = (float) height / font.lineHeight;
-        PoseStack pose = graphics.pose();
-        pose.translate(x, y, 0);
-        pose.scale(scaleX, scaleY, 1f);
+        Matrix3x2fStack pose = graphics.pose();
+        pose.translate(x, y);
+        pose.scale(scaleX, scaleY);
         int size = font.width(component);
-        graphics.drawString(font, component, -size / 2, 0, color);
-        pose.scale(1 / scaleX, 1 / scaleY, 1f);
-        pose.translate(-x, -y, 0);
+        graphics.text(font, component, -size / 2, 0, color);
+        pose.scale(1 / scaleX, 1 / scaleY);
+        pose.translate(-x, -y);
     }
 
     /**
@@ -575,19 +526,19 @@ public class GuiUtils {
      * @param component text
      * @param color color
      */
-    public static void drawRightTextComponentScaled(GuiGraphics graphics, int x, int y, int height,
+    public static void drawRightTextComponentScaled(GuiGraphicsExtractor graphics, int x, int y, int height,
                                                     Component component, int color) {
         Minecraft minecraft = Minecraft.getInstance();
         Font font = minecraft.font;
         float scaleX = (float) height / font.lineHeight;
         float scaleY = (float) height / font.lineHeight;
-        PoseStack pose = graphics.pose();
-        pose.translate(x, y, 0);
-        pose.scale(scaleX, scaleY, 1f);
+        Matrix3x2fStack pose = graphics.pose();
+        pose.translate(x, y);
+        pose.scale(scaleX, scaleY);
         int size = font.width(component);
-        graphics.drawString(font, component, -size, 0, color);
-        pose.scale(1 / scaleX, 1 / scaleY, 1f);
-        pose.translate(-x, -y, 0);
+        graphics.text(font, component, -size, 0, color);
+        pose.scale(1 / scaleX, 1 / scaleY);
+        pose.translate(-x, -y);
     }
 
     /**
@@ -603,7 +554,7 @@ public class GuiUtils {
      * 
      * @since 2.1
      */
-    public static void drawTextBox(GuiGraphics graphics, Font font, int x, int y, int parentWidth, int parentHeight, String... args) {
+    public static void drawTextBox(GuiGraphicsExtractor graphics, Font font, int x, int y, int parentWidth, int parentHeight, String... args) {
         List<String> text = Arrays.asList(args);
         int width = text.isEmpty() ? 0 : text.stream().mapToInt(font::width).max().getAsInt();
         int height = text.size() * (1 + font.lineHeight);
@@ -626,7 +577,7 @@ public class GuiUtils {
      *
      * @since 2.0
      */
-    public static void drawBox(GuiGraphics graphics, int x, int y, int width, int height) {
+    public static void drawBox(GuiGraphicsExtractor graphics, int x, int y, int width, int height) {
         // -267386864 0xF0100010 | 1347420415 0x505000FF | 1344798847 0x5028007F
         //Tesselator tessellator = Tesselator.getInstance();
         //BufferBuilder bufferbuilder = tessellator.getBuilder();
@@ -639,33 +590,33 @@ public class GuiUtils {
         //bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         //Matrix4f mat = graphics.pose().last().pose();
         int z = -50;
-        graphics.fillGradient(x - 3, y - 4, x + width + 3, y - 3, z, 0xF0100010, 0xF0100010);
-        graphics.fillGradient(x - 3, y + height + 3, x + width + 3, y + height + 4, z, 0xF0100010, 0xF0100010);
-        graphics.fillGradient(x - 3, y - 3, x + width + 3, y + height + 3, z, 0xF0100010, 0xF0100010);
-        graphics.fillGradient(x - 4, y - 3, x - 3, y + height + 3, z, 0xF0100010, 0xF0100010);
-        graphics.fillGradient(x + width + 3, y - 3, x + width + 4, y + height + 3, z, 0xF0100010, 0xF0100010);
-        graphics.fillGradient(x - 3, y - 3 + 1, x - 3 + 1, y + height + 3 - 1, z, 0x505000FF, 0x5028007F);
-        graphics.fillGradient(x + width + 2, y - 3 + 1, x + width + 3, y + height + 3 - 1, z, 0x505000FF, 0x5028007F);
-        graphics.fillGradient(x - 3, y - 3, x + width + 3, y - 3 + 1, z, 0x505000FF, 0x505000FF);
-        graphics.fillGradient(x - 3, y + height + 2, x + width + 3, y + height + 3, z, 0x5028007F, 0x5028007F);
+        graphics.fillGradient(x - 3, y - 4, x + width + 3, y - 3, 0xF0100010, 0xF0100010);
+        graphics.fillGradient(x - 3, y + height + 3, x + width + 3, y + height + 4, 0xF0100010, 0xF0100010);
+        graphics.fillGradient(x - 3, y - 3, x + width + 3, y + height + 3, 0xF0100010, 0xF0100010);
+        graphics.fillGradient(x - 4, y - 3, x - 3, y + height + 3, 0xF0100010, 0xF0100010);
+        graphics.fillGradient(x + width + 3, y - 3, x + width + 4, y + height + 3, 0xF0100010, 0xF0100010);
+        graphics.fillGradient(x - 3, y - 3 + 1, x - 3 + 1, y + height + 3 - 1, 0x505000FF, 0x5028007F);
+        graphics.fillGradient(x + width + 2, y - 3 + 1, x + width + 3, y + height + 3 - 1, 0x505000FF, 0x5028007F);
+        graphics.fillGradient(x - 3, y - 3, x + width + 3, y - 3 + 1, 0x505000FF, 0x505000FF);
+        graphics.fillGradient(x - 3, y + height + 2, x + width + 3, y + height + 3, 0x5028007F, 0x5028007F);
         //tessellator.end();
         GlStateManager._disableBlend();
     }
 
-    public static void renderItemIdentity(GuiGraphics graphics, ItemStack stack, int x, int y) {
-        PoseStack pose = graphics.pose();
-        pose.pushPose();
-        pose.setIdentity();
-        graphics.renderItem(stack, x, y);
-        pose.popPose();
+    public static void renderItemIdentity(GuiGraphicsExtractor graphics, ItemStack stack, int x, int y) {
+    	Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.identity();
+        graphics.item(stack, x, y);
+        pose.popMatrix();
     }
 
-    public static void renderItemDecorationIdentity(GuiGraphics graphics, Font font, ItemStack stack, int x, int y) {
-        PoseStack pose = graphics.pose();
-        pose.pushPose();
-        pose.setIdentity();
-        graphics.renderItemDecorations(font, stack, x, y);
-        pose.popPose();
+    public static void renderItemDecorationIdentity(GuiGraphicsExtractor graphics, Font font, ItemStack stack, int x, int y) {
+    	Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.identity();
+        graphics.itemDecorations(font, stack, x, y);
+        pose.popMatrix();
     }
 
     /**
@@ -684,7 +635,7 @@ public class GuiUtils {
      *      float)
      * @since 2.0
      */
-    public static void drawGradientRect(GuiGraphics graphics, int left, int top, int right, int bottom, int startColor,
+    public static void drawGradientRect(GuiGraphicsExtractor graphics, int left, int top, int right, int bottom, int startColor,
             int endColor, float zLevel) {
         drawGradientRect(graphics, left, top, right, bottom, startColor, startColor, endColor, endColor, zLevel);
     }
@@ -706,7 +657,7 @@ public class GuiUtils {
      * @see #drawGradientRect(GuiGraphics, int, int, int, int, int, int, float)
      * @since 2.0
      */
-    public static void drawGradientRect(GuiGraphics graphics, int left, int top, int right, int bottom, int rightTopColor,
+    public static void drawGradientRect(GuiGraphicsExtractor graphics, int left, int top, int right, int bottom, int rightTopColor,
             int leftTopColor, int leftBottomColor, int rightBottomColor, float zLevel) {
         float alphaRightTop = (float) (rightTopColor >> 24 & 255) / 255.0F;
         float redRightTop = (float) (rightTopColor >> 16 & 255) / 255.0F;
@@ -724,7 +675,6 @@ public class GuiUtils {
         float redRightBottom = (float) (rightBottomColor >> 16 & 255) / 255.0F;
         float greenRightBottom = (float) (rightBottomColor >> 8 & 255) / 255.0F;
         float blueRightBottom = (float) (rightBottomColor & 255) / 255.0F;
-        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         GlStateManager._enableBlend();
         GlStateManager._blendFuncSeparate(GlConst.GL_SRC_ALPHA,
         		GlConst.GL_ONE_MINUS_SRC_ALPHA,
@@ -735,13 +685,18 @@ public class GuiUtils {
         		GlConst.GL_ONE_MINUS_SRC_ALPHA,
         		GlConst.GL_ONE,
                 GlConst.GL_ZERO);
-        Matrix4f mat = graphics.pose().last().pose();
-        bufferbuilder.addVertex(mat, right, top, zLevel).setColor(redRightTop, greenRightTop, blueRightTop, alphaRightTop);
-        bufferbuilder.addVertex(mat, left, top, zLevel).setColor(redLeftTop, greenLeftTop, blueLeftTop, alphaLeftTop);
-        bufferbuilder.addVertex(mat, left, bottom, zLevel).setColor(redLeftBottom, greenLeftBottom, blueLeftBottom, alphaLeftBottom);
-        bufferbuilder.addVertex(mat, right, bottom, zLevel).setColor(redRightBottom, greenRightBottom, blueRightBottom, alphaRightBottom);
-        Minecraft.getInstance().levelRenderer.getVisibleSections().getFirst().uploadSectionLayer(RenderType.LINES, bufferbuilder.build());
-        GlStateManager._disableBlend();
+        try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(DefaultVertexFormat.POSITION_COLOR.getVertexSize() * 12 * 2)) {
+            BufferBuilder bufferbuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+	        Matrix3x2fStack mat = graphics.pose().popMatrix();
+	        bufferbuilder.addVertexWith2DPose(mat, right, top).setColor(redRightTop, greenRightTop, blueRightTop, alphaRightTop);
+	        bufferbuilder.addVertexWith2DPose(mat, left, top).setColor(redLeftTop, greenLeftTop, blueLeftTop, alphaLeftTop);
+	        bufferbuilder.addVertexWith2DPose(mat, left, bottom).setColor(redLeftBottom, greenLeftBottom, blueLeftBottom, alphaLeftBottom);
+	        bufferbuilder.addVertexWith2DPose(mat, right, bottom).setColor(redRightBottom, greenRightBottom, blueRightBottom, alphaRightBottom);
+	        try (MeshData meshData = bufferbuilder.buildOrThrow()) {
+	            RenderSystem.getDevice().createBuffer(() -> "drawGradientRect", 32, meshData.vertexBuffer());
+	        }
+        }
+	    GlStateManager._disableBlend();
     }
 
     /**
@@ -775,5 +730,5 @@ public class GuiUtils {
             y += 12;
         return new Tuple<>(x, y);
     }
-
+    
 }

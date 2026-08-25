@@ -3,7 +3,7 @@ package fr.atesab.xray.screen;
 import fr.atesab.xray.XrayMain;
 import fr.atesab.xray.color.Skin;
 import fr.atesab.xray.utils.GuiUtils;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
@@ -23,18 +23,19 @@ public class XrayScreen extends Screen {
 
 
     @Override
-    public void renderBackground(GuiGraphics graphics, int p_299421_, int p_298679_, float p_297268_) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (minecraft.level != null) {
-            super.renderBackground(graphics, p_299421_, p_298679_, p_297268_);
+            super.extractBackground(graphics, mouseX, mouseY, a);
         } else {
             Skin skin = XrayMain.getMod().getConfig().getSkin();
             Integer bg = skin.getBackgroundColor();
             if (bg != null) {
                 GuiUtils.drawRect(graphics, 0, 0, width, height, bg);
             } else {
-                super.renderBackground(graphics, p_299421_, p_298679_, p_297268_);
+                super.extractBackground(graphics, mouseX, mouseY, a);
             }
         }
+        //super.extractRenderState(graphics, mouseX, mouseY, a);
     }
 
     @Override

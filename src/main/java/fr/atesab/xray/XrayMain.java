@@ -11,17 +11,12 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 import fr.atesab.xray.color.ColorSupplier;
 import fr.atesab.xray.color.IColorObject;
@@ -36,20 +31,22 @@ import fr.atesab.xray.utils.GuiUtils;
 import fr.atesab.xray.utils.GuiUtils.RGBResult;
 import fr.atesab.xray.utils.KeyInput;
 import fr.atesab.xray.utils.RenderUtils;
+import fr.atesab.xray.utils.RenderingChannelBuilder;
 import fr.atesab.xray.utils.XrayUtils;
 import net.minecraft.client.Camera;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
+import net.minecraft.client.renderer.block.BlockModelLighter;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ChunkPos;
@@ -102,12 +99,14 @@ public class XrayMain {
 
 	private boolean blueBlueSkyEnable = false;
 
+	public static final KeyMapping.Category XRAY_CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(XrayMain.MOD_ID, "key.categories.xray"));
 	private KeyMapping configKey, fullbrightKey, locationEnableKey, blueBlueSkyKey;
 
 	private XrayConfig config;
 
 	private int fullbrightColor = 0;
 
+	
 	private final IColorObject fullbrightMode = new IColorObject() {
 		public int getColor() {
 			return fullbrightColor;
@@ -308,9 +307,9 @@ public class XrayMain {
 
 		KeyInput input = new KeyInput(ev.getKey(), ev.getScanCode(), ev.getAction(), ev.getModifiers());
 
-		if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), input.key())) {
+		if (InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), input.key())) {
 			config.getModes().forEach(mode -> mode.onKeyInput(input));
-			ModelBlockRenderer.clearCache();
+			BlockModelLighter.clearCache();
 		}
 
 		if (fullbrightKey.consumeClick()) {
@@ -329,7 +328,7 @@ public class XrayMain {
 
 	@SubscribeEvent
 	public void onHudRender(RenderGuiEvent.Post ev) {
-		GuiGraphics graphics = ev.getGuiGraphics();
+		GuiGraphicsExtractor graphics = ev.getGuiGraphics();
 		Minecraft mc = Minecraft.getInstance();
 		Font render = mc.font;
 		LocalPlayer player = mc.player;
@@ -392,45 +391,38 @@ public class XrayMain {
     }
 
 	@SubscribeEvent
-	public void onRenderWorld(RenderLevelStageEvent ev) {
-		if (ev.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) {
-			return;
-		}
+	public void onRenderWorld(RenderLevelStageEvent.AfterWeather ev) {
 		Minecraft minecraft = Minecraft.getInstance();
 		ClientLevel level = minecraft.level;
 		LocalPlayer player = minecraft.player;
 		if (level == null || player == null) {
 			return;
 		}
-		RenderPipeline usingPipeLine = RenderUtils.buildLinePipeline("esp_lines");
-		RenderSystem.AutoStorageIndexBuffer autoStorageBuffer = RenderUtils.buildBuffer(VertexFormat.Mode.LINES);
 
 		PoseStack stack = ev.getPoseStack();
-		float delta = ev.getPartialTick().getGameTimeDeltaPartialTick(false);
+		float delta = minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(false);
 		Camera mainCamera = minecraft.gameRenderer.getMainCamera();
-		Vec3 camera = mainCamera.getPosition();
+		Vec3 camera = mainCamera.position();
 		
 		if (config.getEspConfigs().stream().noneMatch(ESPConfig::isEnabled)) {
 			return;
 		}
 
-		
-		Tesselator tessellator = Tesselator.getInstance();
-		BufferBuilder buffer = tessellator.begin(usingPipeLine.getVertexFormatMode(), usingPipeLine.getVertexFormat());
+		RenderingChannelBuilder builder = new RenderingChannelBuilder(RenderUtils.getLineRenderType("esp_line"));
 		stack.pushPose();
 
 		stack.setIdentity();
 		stack.translate(-camera.x, -camera.y, -camera.z);
-		Vector3f look = mainCamera.getLookVector();
+		Vector3fc look = mainCamera.forwardVector();
 		float px = (float) (player.xOld + (player.getX() - player.xOld) * delta) + look.x();
-		float py = (float) (player.yOld + (player.getY() - player.yOld) * delta) + player.getEyeHeight() + look.y();
+		float py = (float) (player.yOld + (player.getY() - player.yOld) * delta) + player.getEyeHeight(player.getPose()) + look.y();
 		float pz = (float) (player.zOld + (player.getZ() - player.zOld) * delta) + look.z();
 
 		int maxDistanceSquared = (config.getMaxTracerRange() * config.getMaxTracerRange());
 		int distance = minecraft.options.getEffectiveRenderDistance();
 		ChunkPos chunkPos = player.chunkPosition();
-		int chunkX = chunkPos.x;
-		int chunkZ = chunkPos.z;
+		int chunkX = chunkPos.x();
+		int chunkZ = chunkPos.z();
 
 		if (config.getEspConfigs().stream().anyMatch(ESPConfig::hasBlockEsp)) {
 			for (int i = chunkX - distance; i <= chunkX + distance; i++) {
@@ -472,13 +464,12 @@ public class XrayMain {
 										blockPos.getX() + 1, blockPos.getY() + 1, blockPos.getZ() + 1
 								);
 
-								RenderUtils.renderLineBoxVanillaStyle(stack, buffer, aabb, r, g, b, a);
-								//LevelRenderer.renderLineBox(stack, buffer, aabb, r, g, b, a);
+								RenderUtils.renderLineBoxVanillaStyle(stack, builder, aabb, r, g, b, a, config.getEspLineWidth());
 
 								if (esp.hasTracer()) {
 									Vec3 center = aabb.getCenter();
-									RenderUtils.renderSingleLine(stack, buffer, px, py, pz, (float) center.x,
-											(float) center.y, (float) center.z, r, g, b, a);
+									RenderUtils.renderSingleLine(stack, builder, px, py, pz, (float) center.x,
+											(float) center.y, (float) center.z, r, g, b, a, config.getEspLineWidth());
 								}
 							});
 						}));
@@ -518,17 +509,17 @@ public class XrayMain {
 
 				AABB aabb = type.getSpawnAABB(x, y, z);
 
-				RenderUtils.renderLineBoxVanillaStyle(stack, buffer, aabb, r, g, b, a);
+				RenderUtils.renderLineBoxVanillaStyle(stack, builder, aabb, r, g, b, a, config.getEspLineWidth());
 
 				if (esp.hasTracer()) {
 					Vec3 center = aabb.getCenter();
-					RenderUtils.renderSingleLine(stack, buffer, px, py, pz, (float) center.x,
-							(float) center.y, (float) center.z, r, g, b, a);
+					RenderUtils.renderSingleLine(stack, builder, px, py, pz, (float) center.x,
+							(float) center.y, (float) center.z, r, g, b, a, config.getEspLineWidth());
 				}
 			});
 		});
 		stack.popPose();
-		RenderUtils.renderIfExists(buffer, usingPipeLine, autoStorageBuffer);
+		builder.closeChannel();
 	}
 
 	/**
@@ -540,10 +531,10 @@ public class XrayMain {
 	}
 
 	private void registerKeyBinding(final RegisterKeyMappingsEvent ev) {
-		fullbrightKey = new KeyMapping("x13.mod.fullbright", GLFW.GLFW_KEY_H, "key.categories.xray");
-		configKey = new KeyMapping("x13.mod.config", GLFW.GLFW_KEY_N, "key.categories.xray");
-		locationEnableKey = new KeyMapping("x13.mod.locationEnable", GLFW.GLFW_KEY_J, "key.categories.xray");
-		blueBlueSkyKey = new KeyMapping("x13.mod.blueBlueSky", GLFW.GLFW_KEY_UNKNOWN, "key.categories.xray");
+		fullbrightKey = new KeyMapping("x13.mod.fullbright", GLFW.GLFW_KEY_H, XRAY_CATEGORY);
+		configKey = new KeyMapping("x13.mod.config", GLFW.GLFW_KEY_N, XRAY_CATEGORY);
+		locationEnableKey = new KeyMapping("x13.mod.locationEnable", GLFW.GLFW_KEY_J, XRAY_CATEGORY);
+		blueBlueSkyKey = new KeyMapping("x13.mod.blueBlueSky", GLFW.GLFW_KEY_UNKNOWN, XRAY_CATEGORY);
 
 		ev.register(fullbrightKey);
 		ev.register(configKey);
