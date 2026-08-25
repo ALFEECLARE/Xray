@@ -27,6 +27,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -63,11 +64,11 @@ public class LocationFormatTool implements EnumElement {
     public static final LocationFormatTool PLAYER_LOCATION_Z = register("x13.mod.location.opt.z", Items.BOOK, "z",
             (mc, player, world) -> XrayMain.significantNumbers(player.position().z));
     public static final LocationFormatTool PLAYER_LOCATION_FLOOR_X = register("x13.mod.location.opt.fx", Items.BOOK, "fx",
-            (mc, player, world) -> String.valueOf((int) player.position().x));
+            (mc, player, world) -> String.valueOf(Mth.floor(player.position().x)));
     public static final LocationFormatTool PLAYER_LOCATION_FLOOR_Y = register("x13.mod.location.opt.fy", Items.BOOK, "fy",
-            (mc, player, world) -> String.valueOf((int) player.position().y));
+            (mc, player, world) -> String.valueOf(Mth.floor(player.position().y)));
     public static final LocationFormatTool PLAYER_LOCATION_FLOOR_Z = register("x13.mod.location.opt.fz", Items.BOOK, "fz",
-            (mc, player, world) -> String.valueOf((int) player.position().z));
+            (mc, player, world) -> String.valueOf(Mth.floor(player.position().z)));
     public static final LocationFormatTool PLAYER_HORIZONTAL_DEGREE = register("x13.mod.location.opt.horizontalDegree", Items.RECOVERY_COMPASS, "Hdegree",
             (mc, player, world) -> String.valueOf(Math.floorMod((int) player.getYRot() + 180, 360)));
     public static final LocationFormatTool PLAYER_VERTICAL_DEGREE = register("x13.mod.location.opt.verticalDegree", Items.RECOVERY_COMPASS, "Vdegree",
@@ -90,14 +91,17 @@ public class LocationFormatTool implements EnumElement {
     public static final LocationFormatTool LOOKING_BLOCK_LIGHT = register("x13.mod.location.opt.lookingBlockLight", Items.REDSTONE_TORCH, "lookinglight",
     		(mc, player, world) -> String.valueOf(world.getBrightness(LightLayer.BLOCK, LocationUtils.getLookingFaceBlockPos(mc, player))));
     public static final LocationFormatTool LOOKINGBLOCK = register("x13.mod.location.opt.lookingBlock", Items.DIAMOND_ORE, "lookingblock",
-    		(mc, player, world) -> BuiltInRegistries.BLOCK.getKey(world.getBlockState(LocationUtils.getLookingBlockPos(mc)).getBlock()).getPath());
+    		(mc, player, world) -> LocationUtils.getBlockName(world, LocationUtils.getLookingBlockPos(mc)));
     public static final LocationFormatTool LOOKINGBLOCK_TRANSLATE = register("x13.mod.location.opt.lookingTranslate", Items.DIAMOND_ORE, "lookingtranslate",
-    		(mc, player, world) -> I18n.get(world.getBlockState(LocationUtils.getLookingBlockPos(mc))
-                    .getBlock().getDescriptionId()));
+    		(mc, player, world) -> LocationUtils.getTranslatedBlockName(world, LocationUtils.getLookingBlockPos(mc)));
     public static final LocationFormatTool LOOKINGBLOCK_REQUESTEDTOOL = register("x13.mod.location.opt.lookingRequestedTool", Items.DIAMOND_PICKAXE, "lookingreqtool",
     		(mc, player, world) -> LocationUtils.getCorrectToolText(world.getBlockState(LocationUtils.getLookingBlockPos(mc))));
     public static final LocationFormatTool LOOKINGBLOCK_DESTROYPROGRESS = register("x13.mod.location.opt.lookingDestoryProgress", Items.DIAMOND_PICKAXE, "lookingdestroyprog",
     		(mc, player, world) -> String.valueOf((int)(mc.gameMode.destroyProgress * 100)) + "%");
+    public static final LocationFormatTool LOOKINGBLOCK_CROPGROWLEVEL = register("x13.mod.location.opt.lookingGrowthLevel", Items.WHEAT_SEEDS, "lookinggrowthlevel",
+    		(mc, player, world) -> LocationUtils.getCropBlockGrowthlevelText(world, LocationUtils.getLookingBlockPos(mc), false));
+    public static final LocationFormatTool LOOKINGBLOCK_CROPMAXLEVEL = register("x13.mod.location.opt.lookingMaxLevel", Items.WHEAT, "lookingmaxlevel",
+    		(mc, player, world) -> LocationUtils.getCropBlockGrowthlevelText(world, LocationUtils.getLookingBlockPos(mc), true));
     public static final LocationFormatTool FACING = register("x13.mod.location.opt.facing", Items.COMPASS, "face",
     		(mc, player, world) -> player.getDirection().getName());
     public static final LocationFormatTool DAYS_COUNT = register("x13.mod.location.opt.daysCount", Items.CLOCK, "d",

@@ -6,17 +6,27 @@ import java.text.NumberFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.BeehiveBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.minecraft.world.level.block.SnifferEggBlock;
+import net.minecraft.world.level.block.TurtleEggBlock;
+import net.minecraft.world.level.block.VaultBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -136,6 +146,38 @@ public class LocationUtils {
 		}
 	}
 	
+	public static String getBlockName(ClientLevel world, BlockPos blockpos) {
+		BlockState blockstate = world.getBlockState(blockpos);
+		Block block = blockstate.getBlock();
+		return switch(block) {
+			case VaultBlock vaultblock -> !blockstate.getValue(BlockStateProperties.OMINOUS) ? "Vault" : "OminousVault";
+			default 				   -> BuiltInRegistries.BLOCK.getKey(block).getPath();
+		};
+	}
+
+	public static String getTranslatedBlockName(ClientLevel world, BlockPos blockpos) {
+		BlockState blockstate = world.getBlockState(blockpos);
+		Block block = blockstate.getBlock();
+		return switch(block) {
+			case VaultBlock vaultblock -> !blockstate.getValue(BlockStateProperties.OMINOUS) ? Component.translatable("block.minecraft.vault").getString() : Component.translatable("block.minecraft.ominousvault").getString();
+			default 				   -> I18n.get(block.getDescriptionId());
+		};
+	}
+
+	public static String getCropBlockGrowthlevelText(ClientLevel world, BlockPos blockpos, boolean isMaxValueRequest) {
+		BlockState blockstate = world.getBlockState(blockpos);
+		Block block = blockstate.getBlock();
+		return switch(block) {
+			case CropBlock cropblock		-> String.valueOf(!isMaxValueRequest ? cropblock.getAge(blockstate) : CropBlock.MAX_AGE);
+			case NetherWartBlock cropblock	-> String.valueOf(!isMaxValueRequest ? blockstate.getValue(NetherWartBlock.AGE).intValue() : NetherWartBlock.MAX_AGE);
+			case RedStoneWireBlock dust		-> String.valueOf(!isMaxValueRequest ? blockstate.getValue(RedStoneWireBlock.POWER).intValue() : 15);
+			case TurtleEggBlock eggblock	-> String.valueOf(!isMaxValueRequest ? blockstate.getValue(TurtleEggBlock.HATCH).intValue() : TurtleEggBlock.MAX_HATCH_LEVEL);
+			case SnifferEggBlock eggblock	-> String.valueOf(!isMaxValueRequest ? blockstate.getValue(SnifferEggBlock.HATCH).intValue() : SnifferEggBlock.MAX_HATCH_LEVEL);
+			case BeehiveBlock beehive		-> String.valueOf(!isMaxValueRequest ? blockstate.getValue(BeehiveBlock.HONEY_LEVEL).intValue() : BeehiveBlock.MAX_HONEY_LEVELS);
+			default							-> "-";
+		};
+	}
+
 	public static String getWeatherText(ClientLevel world) {
 		if (!world.isRaining()) {
 			return Component.translatable("x13.mod.location.opt.weather.fine").getString();
